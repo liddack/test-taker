@@ -1,10 +1,11 @@
 "use client";
 
 import { StandaloneQuestion } from "@/classes/standalone-question";
+import { Question } from "@prisma/client";
 import { ChangeEvent, Dispatch, ReactNode, SetStateAction, useCallback } from "react";
 
 type StandaloneExamProps = {
-  questions: StandaloneQuestion[];
+  questions: Question[];
   setShowResultsPage: Dispatch<SetStateAction<boolean>>;
   answers: number[][];
   setAnswers: Dispatch<SetStateAction<number[][]>>;

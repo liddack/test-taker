@@ -3,15 +3,11 @@
 import { StandaloneQuestion } from "@/classes/standalone-question";
 import ExamResult from "@/components/exam-result";
 import StandaloneExam from "@/components/standalone-exam";
-import { ImportedQuestion } from "@/interfaces/imported-question";
 import { TestExample } from "@/test-example";
 import { ReactNode, useState } from "react";
 
-export default function TakeStandalone({
-  importedQuestions = TestExample,
-}: {
-  importedQuestions: ImportedQuestion[];
-}) {
+const TakeStandalone = () => {
+  const importedQuestions = TestExample;
   const questions = importedQuestions.map((q) => new StandaloneQuestion(q));
   const [showResultsPage, setShowResultsPage] = useState(false);
   const [currentQuestion, setCurrentQuestion] = useState(0);
@@ -41,4 +37,6 @@ export default function TakeStandalone({
       )}
     </Main>
   );
-}
+};
+
+export default TakeStandalone;
