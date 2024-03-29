@@ -2,9 +2,7 @@ import { QuestionSet } from "@prisma/client";
 import Link from "next/link";
 
 export async function HomeTests() {
-  const res = await fetch(
-    process.env.URL ?? "http://localhost:3000" + `/api/test`
-  );
+  const res = await fetch(process.env.URL ?? "http://localhost:3000" + `/api/test`);
   const tests: QuestionSet[] = await res.json();
   console.log(tests);
   return (
