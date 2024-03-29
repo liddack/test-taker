@@ -1,0 +1,9 @@
+interface ImportedAlternative {
+  isCorrect: boolean;
+  label: string;
+}
+
+export interface ImportedQuestion {
+  command: string;
+  alternatives: ImportedAlternative[];
+}
