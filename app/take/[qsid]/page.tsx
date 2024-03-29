@@ -1,9 +1,19 @@
 "use client";
 
 import { ObfuscatedQuestion } from "@/app/api/test/[qsid]/route";
-import { ChangeEvent, ReactNode, useCallback, useEffect, useState } from "react";
+import {
+  ChangeEvent,
+  ReactNode,
+  useCallback,
+  useEffect,
+  useState,
+} from "react";
 
-export default function Questionnaire({ params }: { params: { qsid: number } }) {
+export default function Questionnaire({
+  params,
+}: {
+  params: { qsid: number };
+}) {
   const { qsid } = params;
   const [questions, setQuestions] = useState<ObfuscatedQuestion[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -22,7 +32,9 @@ export default function Questionnaire({ params }: { params: { qsid: number } }) 
   }, [qsid]);
 
   const Main = ({ children }: { children: ReactNode }) => (
-    <main className="flex-start grow flex flex-col justify-center">{children}</main>
+    <main className="flex-start grow flex flex-col justify-center">
+      {children}
+    </main>
   );
   const buttonStyle = `px-3 py-2 mr-2 bg-slate-700 text-white rounded cursor-pointer hover:bg-slate-600 disabled:text-slate-300 disabled:bg-slate-500`;
 
@@ -31,7 +43,11 @@ export default function Questionnaire({ params }: { params: { qsid: number } }) 
     hasNext = currentQuestion + 1 < questions.length;
 
   const storeAnswer = useCallback(
-    (e: ChangeEvent<HTMLInputElement>, question: ObfuscatedQuestion, index: number) => {
+    (
+      e: ChangeEvent<HTMLInputElement>,
+      question: ObfuscatedQuestion,
+      index: number
+    ) => {
       const answersCp = [...answers];
       switch (question.type) {
         case "checkbox":
