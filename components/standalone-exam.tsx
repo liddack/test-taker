@@ -1,7 +1,13 @@
 "use client";
 
 import { StandaloneQuestion } from "@/classes/standalone-question";
-import { ChangeEvent, Dispatch, ReactNode, SetStateAction, useCallback } from "react";
+import {
+  ChangeEvent,
+  Dispatch,
+  ReactNode,
+  SetStateAction,
+  useCallback,
+} from "react";
 
 type StandaloneExamProps = {
   questions: StandaloneQuestion[];
@@ -21,7 +27,9 @@ export default function StandaloneExam({
   setShowResultsPage,
 }: StandaloneExamProps) {
   const Main = ({ children }: { children: ReactNode }) => (
-    <main className="flex-start grow flex flex-col justify-center">{children}</main>
+    <main className="flex-start grow flex flex-col justify-center">
+      {children}
+    </main>
   );
   const buttonStyle = `px-3 py-2 mr-2 bg-slate-700 text-white rounded cursor-pointer hover:bg-slate-600 disabled:text-slate-300 disabled:bg-slate-500`;
 
@@ -42,7 +50,11 @@ export default function StandaloneExam({
   );
 
   const storeAnswer = useCallback(
-    (e: ChangeEvent<HTMLInputElement>, question: StandaloneQuestion, index: number) => {
+    (
+      e: ChangeEvent<HTMLInputElement>,
+      question: StandaloneQuestion,
+      index: number
+    ) => {
       const answersCp = [...answers];
       if (question.answers.length > 1) {
         // checkbox
@@ -79,7 +91,7 @@ export default function StandaloneExam({
               type={q.answers.length > 1 ? "checkbox" : "radio"}
               id={`q:${q.id}_a:${i}`}
               onChange={(e) => storeAnswer(e, q, i)}
-              checked={answers[currentQuestion].includes(i)}
+              checked={answers[currentQuestion]?.includes(i)}
             ></input>
             <label
               className="ms-2 text font-medium text-gray-90 ml-2 block"
