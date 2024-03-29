@@ -1,0 +1,26 @@
+services:
+  app:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    command: sleep infinity
+    user: root
+    ports:
+      - 3000:3000
+    depends_on:
+      - db
+    volumes:
+      - "..:/workspace"
+  db:
+    image: postgres
+    restart: always
+    shm_size: 128mb
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_PASSWORD: simulados
+    volumes:
+      - simulados:/var/lib/postgresql/data
+
+volumes:
+  simulados:
