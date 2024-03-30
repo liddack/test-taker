@@ -3,7 +3,7 @@
 import ExamResult from "@/components/exam-result";
 import StandaloneExam from "@/components/standalone-exam";
 import { Question } from "@prisma/client";
-import { ChangeEvent, ReactNode, useCallback, useEffect, useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
 
 export default function Questionnaire({ params }: { params: { qsid: number } }) {
   const { qsid } = params;

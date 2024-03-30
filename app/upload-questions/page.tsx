@@ -5,6 +5,7 @@ import { ChangeEvent } from "react";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { prism } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { saveOnLocalStorage } from "../lib/utils/storage";
+import { useRouter } from "next/navigation";
 
 const exampleQuestions: ImportedQuestion[] = [
   {
@@ -30,6 +31,7 @@ const exampleQuestions: ImportedQuestion[] = [
 const stringfiedQuestions = JSON.stringify(exampleQuestions, null, 2);
 
 const UploadQuestions = () => {
+  const router = useRouter();
   const handleSelectFile = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) {
@@ -46,7 +48,7 @@ const UploadQuestions = () => {
         jsonContent = JSON.parse(content);
 
         saveOnLocalStorage("questionsData", jsonContent);
-        console.log("received file path json reader: ", jsonContent);
+        router.push("/take/standalone");
       } catch (error) {
         console.log("error when loading file: ", error);
         alert("Erro ao carregar arquivo! :(");
@@ -75,8 +77,10 @@ const UploadQuestions = () => {
           </svg>
           <p className="mt-3 text-gray-700 max-w-xs mx-auto">
             Clique para{" "}
-            <span className="font-medium text-indigo-600">Enviar um arquivo</span> ou
-            arraste e solte seu arquivo aqui.
+            <span className="font-medium text-indigo-600">
+              Enviar um arquivo
+            </span>{" "}
+            com as questões do simulado
           </p>
         </label>
         <input

@@ -9,7 +9,7 @@ type ExamResultProps = {
 
 const buttonStyle = `px-3 py-2 mr-2 bg-slate-700 text-white rounded cursor-pointer hover:bg-slate-600 disabled:text-slate-300 disabled:bg-slate-500`;
 const containsAll = (arr1: number[], arr2: number[]) =>
-  arr2.every((arr2Item) => arr1.includes(arr2Item));
+  arr2?.every((arr2Item) => arr1?.includes(arr2Item));
 
 const sameMembers = (arr1: number[], arr2: number[]) =>
   containsAll(arr1, arr2) && containsAll(arr2, arr1);
@@ -19,8 +19,8 @@ export default function ExamResult({
   answers,
   setShowResultsPage,
 }: ExamResultProps) {
-  const correctAnswers = answers.filter((a, i) => {
-    const questionAnswers = questions[i].answers;
+  const correctAnswers = answers?.filter((a, i) => {
+    const questionAnswers = questions[i]?.answers;
     return sameMembers(a, questionAnswers);
   });
   return (
@@ -32,7 +32,10 @@ export default function ExamResult({
         Você acertou {correctAnswers.length} de {questions.length} questões
       </h2>
       <p className="text-center mb-6">
-        <button className={buttonStyle} onClick={() => setShowResultsPage(false)}>
+        <button
+          className={buttonStyle}
+          onClick={() => setShowResultsPage(false)}
+        >
           Voltar
         </button>
       </p>
@@ -51,7 +54,7 @@ export default function ExamResult({
               </h3>
               <div className="ml-6 my-1">
                 {q.alternatives.map((alt, idx) => {
-                  const wasChosen = answers[i].includes(idx);
+                  const wasChosen = answers[i]?.includes(idx);
                   const isCorrect = q.answers.includes(idx);
                   const type = q.answers.length > 1 ? "checkbox" : "radio";
                   return (
@@ -64,7 +67,11 @@ export default function ExamResult({
                       }`}
                     >
                       <label className={`flex items-center`}>
-                        <input type={type} checked={wasChosen} onClick={() => {}} />
+                        <input
+                          type={type}
+                          checked={wasChosen}
+                          onClick={() => {}}
+                        />
                         <span className="ml-1">{alt}</span>
                       </label>
                     </div>

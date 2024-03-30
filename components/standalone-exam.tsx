@@ -1,7 +1,7 @@
 "use client";
 
+import { Question } from ".prisma/client";
 import { StandaloneQuestion } from "@/classes/standalone-question";
-import { Question } from "@prisma/client";
 import { ChangeEvent, Dispatch, ReactNode, SetStateAction, useCallback } from "react";
 
 type StandaloneExamProps = {
@@ -80,7 +80,7 @@ export default function StandaloneExam({
               type={q.answers.length > 1 ? "checkbox" : "radio"}
               id={`q:${q.id}_a:${i}`}
               onChange={(e) => storeAnswer(e, q, i)}
-              checked={answers[currentQuestion].includes(i)}
+              checked={answers[currentQuestion]?.includes(i)}
             ></input>
             <label
               className="ms-2 text font-medium text-gray-90 ml-2 block"
