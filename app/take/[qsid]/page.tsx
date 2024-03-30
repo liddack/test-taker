@@ -1,19 +1,11 @@
 "use client";
 
-import { ObfuscatedQuestion } from "@/app/api/test/[qsid]/route";
-import {
-  ChangeEvent,
-  ReactNode,
-  useCallback,
-  useEffect,
-  useState,
-} from "react";
+import ExamResult from "@/components/exam-result";
+import StandaloneExam from "@/components/standalone-exam";
+import { Question } from "@prisma/client";
+import { ReactNode, useEffect, useState } from "react";
 
-export default function Questionnaire({
-  params,
-}: {
-  params: { qsid: number };
-}) {
+export default function Questionnaire({ params }: { params: { qsid: number } }) {
   const { qsid } = params;
   const [questions, setQuestions] = useState<Question[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -33,41 +25,7 @@ export default function Questionnaire({
   }, [qsid]);
 
   const Main = ({ children }: { children: ReactNode }) => (
-    <main className="flex-start grow flex flex-col justify-center">
-      {children}
-    </main>
-  );
-  const buttonStyle = `px-3 py-2 mr-2 bg-slate-700 text-white rounded cursor-pointer hover:bg-slate-600 disabled:text-slate-300 disabled:bg-slate-500`;
-
-  const q = questions[currentQuestion],
-    hasPrevious = currentQuestion - 1 >= 0,
-    hasNext = currentQuestion + 1 < questions.length;
-
-  const storeAnswer = useCallback(
-    (
-      e: ChangeEvent<HTMLInputElement>,
-      question: ObfuscatedQuestion,
-      index: number
-    ) => {
-      const answersCp = [...answers];
-      switch (question.type) {
-        case "checkbox":
-          if (e.currentTarget.checked) {
-            answersCp[currentQuestion].push(index);
-          } else {
-            answersCp[currentQuestion] = answersCp[currentQuestion].filter(
-              (a) => a != index
-            );
-          }
-          break;
-        case "radio":
-          answersCp[currentQuestion] = [index];
-          break;
-      }
-      setAnswers(answersCp);
-      console.log(answersCp);
-    },
-    [answers, currentQuestion, setAnswers]
+    <main className="flex-start grow flex flex-col justify-center">{children}</main>
   );
 
   if (isLoading) return <Main>Carregando...</Main>;

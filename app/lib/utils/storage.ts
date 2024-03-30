@@ -4,7 +4,7 @@ export const saveOnLocalStorage = (keyName: string, value: any) => {
 
 export const readFromLocalStorage = (keyName: string) => {
   try {
-    const data = JSON.parse(localStorage.getItem(keyName));
+    const data = JSON.parse(localStorage.getItem(keyName) || "");
     return data;
   } catch (error) {
     throw error;
