@@ -16,13 +16,17 @@ function TakeStandalone() {
   const [answers, setAnswers] = useState<number[][]>(questions?.map(() => []));
 
   useEffect(() => {
-    const questionsData = readFromLocalStorage("questionsData") as ImportedQuestion[];
-    const questionsStandalone = questionsData?.map((q) => new StandaloneQuestion(q));
+    const questionsData = readFromLocalStorage("questionsData");
+    const questionsStandalone = questionsData?.map(
+      (q: any) => new StandaloneQuestion(q)
+    );
 
     setQuestions(questionsStandalone);
   }, []);
   const Main = ({ children }: { children: ReactNode }) => (
-    <main className="flex-start grow flex flex-col justify-center">{children}</main>
+    <main className="flex-start grow flex flex-col justify-center">
+      {children}
+    </main>
   );
 
   if (!questions?.length) return <Main>Erro ao buscar teste.</Main>;

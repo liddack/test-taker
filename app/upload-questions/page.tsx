@@ -1,7 +1,7 @@
 "use client";
 
 import { ImportedQuestion } from "@/interfaces/imported-question";
-import { ChangeEvent } from "react";
+import { ChangeEvent, useRef, useState } from "react";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { prism } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { saveOnLocalStorage } from "../lib/utils/storage";
@@ -29,11 +29,19 @@ const exampleQuestions: ImportedQuestion[] = [
 ];
 
 const stringfiedQuestions = JSON.stringify(exampleQuestions, null, 2);
+const buttonStyle = `px-3 py-2 mr-2 bg-slate-700 text-white rounded cursor-pointer hover:bg-slate-600 disabled:text-slate-300 disabled:bg-slate-500`;
 
 const UploadQuestions = () => {
+  const [selectedFileName, setSelectedFileName] = useState<string>("");
   const router = useRouter();
+  const inputRef = useRef<HTMLInputElement>(null);
+
   const handleSelectFile = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
+    const fileName = file?.name || "";
+
+    //   console.log();
+
     if (!file) {
       console.log("Please select the file.");
       return;
@@ -47,8 +55,9 @@ const UploadQuestions = () => {
       try {
         jsonContent = JSON.parse(content);
 
+        setSelectedFileName(fileName);
         saveOnLocalStorage("questionsData", jsonContent);
-        router.push("/take/standalone");
+        // router.push("/take/standalone");
       } catch (error) {
         console.log("error when loading file: ", error);
         alert("Erro ao carregar arquivo! :(");
@@ -57,9 +66,27 @@ const UploadQuestions = () => {
 
     reader.readAsText(file);
   };
+
+  const handleRemoveFile = () => {
+    setSelectedFileName("");
+    localStorage.removeItem("questionsData");
+
+    const inputElement: any = inputRef.current;
+
+    if (inputElement) {
+      inputElement.value = "";
+      inputElement.type = "";
+      inputElement.type = "file";
+    }
+  };
+
+  const handleGoToTest = () => {
+    router.push("/take/standalone");
+  };
+
   return (
     <div className="text-base text-gray-600">
-      <div className="max-w-md h-40 rounded-lg border-gray-600 border-2 border-dashed flex items-center justify-center">
+      <div className="mb-3 max-w-md h-40 rounded-lg border-gray-600 border-2 border-dashed flex items-center justify-center">
         <label htmlFor="file" className="cursor-pointer text-center p-4 md:p-8">
           <svg
             className="w-10 h-10 mx-auto"
@@ -75,13 +102,19 @@ const UploadQuestions = () => {
               strokeLinejoin="round"
             />
           </svg>
-          <p className="mt-3 text-gray-700 max-w-xs mx-auto">
+          <p className="my-3 text-gray-700 max-w-xs mx-auto">
             Clique para{" "}
             <span className="font-medium text-indigo-600">
               Enviar um arquivo
             </span>{" "}
             com as questões do simulado
           </p>
+          {selectedFileName && (
+            <>
+              <strong>Arquivo selecionado: </strong>
+              <span>{selectedFileName}</span>
+            </>
+          )}
         </label>
         <input
           id="file"
@@ -89,18 +122,35 @@ const UploadQuestions = () => {
           className="hidden"
           onChange={handleSelectFile}
           accept=".json"
+          ref={inputRef}
         />
       </div>
-      <div className="flex gap-2 pb-3">
-        <strong>Tipos de arquivos permitidos:</strong>
-        <p>JSON</p>
-      </div>
-      <span>O arquivo json deve respeitar o seguinte formato:</span>
-      <div className="flex max-w-md text-xs max-h-[26rem] overflow-auto">
-        <SyntaxHighlighter language="json" style={prism}>
-          {stringfiedQuestions}
-        </SyntaxHighlighter>
-      </div>
+      {!selectedFileName ? (
+        <div>
+          <div className="flex gap-2 pb-3">
+            <strong>Tipos de arquivos permitidos:</strong>
+            <p>JSON</p>
+          </div>
+          <span>O arquivo json deve respeitar o seguinte formato:</span>
+          <div className="flex max-w-md text-xs max-h-[26rem] overflow-auto">
+            <SyntaxHighlighter language="json" style={prism}>
+              {stringfiedQuestions}
+            </SyntaxHighlighter>
+          </div>
+        </div>
+      ) : (
+        <div className="flex gap-x-2">
+          <button
+            className={"border px-3 py-2 mr-2 border-gray-600 rounded"}
+            onClick={handleRemoveFile}
+          >
+            Remover arquivo
+          </button>
+          <button className={buttonStyle} onClick={handleGoToTest}>
+            Iniciar teste
+          </button>
+        </div>
+      )}
     </div>
   );
 };
