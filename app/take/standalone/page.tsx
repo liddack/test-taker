@@ -10,16 +10,18 @@ import { Question } from "@prisma/client";
 import { ReactNode, useEffect, useState } from "react";
 
 function TakeStandalone() {
+  const [questions, setQuestions] = useState<Question[]>([]);
   const [showResultsPage, setShowResultsPage] = useState(false);
   const [currentQuestion, setCurrentQuestion] = useState(0);
-  const [questions, setQuestions] = useState<Question[]>([]);
-  const [answers, setAnswers] = useState<number[][]>(questions?.map(() => []));
+  const [answers, setAnswers] = useState<number[][]>([]);
 
   useEffect(() => {
     const questionsData = readFromLocalStorage("questionsData") as ImportedQuestion[];
     const questionsStandalone = questionsData?.map((q) => new StandaloneQuestion(q));
 
     setQuestions(questionsStandalone);
+    setAnswers(questionsStandalone.map(() => []));
+    // console.log("respostas:", answers?.length);
   }, []);
   const Main = ({ children }: { children: ReactNode }) => (
     <main className="flex-start grow flex flex-col justify-center">{children}</main>
