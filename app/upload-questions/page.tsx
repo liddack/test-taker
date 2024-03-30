@@ -29,7 +29,6 @@ const exampleQuestions: ImportedQuestion[] = [
 ];
 
 const stringfiedQuestions = JSON.stringify(exampleQuestions, null, 2);
-const buttonStyle = `px-3 py-2 mr-2 bg-slate-700 text-white rounded cursor-pointer hover:bg-slate-600 disabled:text-slate-300 disabled:bg-slate-500`;
 
 const UploadQuestions = () => {
   const [selectedFileName, setSelectedFileName] = useState<string>("");
@@ -85,8 +84,8 @@ const UploadQuestions = () => {
   };
 
   return (
-    <div className="text-base text-gray-600">
-      <div className="mb-3 max-w-md h-40 rounded-lg border-gray-600 border-2 border-dashed flex items-center justify-center">
+    <div className=" flex flex-col sm:max-w-lg  w-full items-center text-base text-gray-600">
+      <div className="mb-3 mt-4 sm:max-w-lg w-full h-40 rounded-lg border-gray-600 border-2 border-dashed flex items-center justify-center">
         <label htmlFor="file" className="cursor-pointer text-center p-4 md:p-8">
           <svg
             className="w-10 h-10 mx-auto"
@@ -102,7 +101,7 @@ const UploadQuestions = () => {
               strokeLinejoin="round"
             />
           </svg>
-          <p className="my-3 text-gray-700 max-w-xs mx-auto">
+          <p className="my-3 text-gray-700 max-w-xs mx-full">
             Clique para{" "}
             <span className="font-medium text-indigo-600">
               Enviar um arquivo
@@ -126,27 +125,34 @@ const UploadQuestions = () => {
         />
       </div>
       {!selectedFileName ? (
-        <div>
+        <div className=" w-full">
           <div className="flex gap-2 pb-3">
             <strong>Tipos de arquivos permitidos:</strong>
             <p>JSON</p>
           </div>
           <span>O arquivo json deve respeitar o seguinte formato:</span>
-          <div className="flex max-w-md text-xs max-h-[26rem] overflow-auto">
-            <SyntaxHighlighter language="json" style={prism}>
+          <div className="flex w-full text-xs max-h-[26rem] overflow-auto">
+            <SyntaxHighlighter
+              className="w-full rounded"
+              language="json"
+              style={prism}
+            >
               {stringfiedQuestions}
             </SyntaxHighlighter>
           </div>
         </div>
       ) : (
-        <div className="flex gap-x-2">
+        <div className="w-full flex justify-center items-center flex-wrap gap-2">
           <button
-            className={"border px-3 py-2 mr-2 border-gray-600 rounded"}
+            className={"w-full sm:w-48 border py-2 border-gray-600 rounded"}
             onClick={handleRemoveFile}
           >
             Remover arquivo
           </button>
-          <button className={buttonStyle} onClick={handleGoToTest}>
+          <button
+            className="w-full sm:w-48 py-2 bg-slate-700 text-white rounded cursor-pointer hover:bg-slate-600 disabled:text-slate-300 disabled:bg-slate-500"
+            onClick={handleGoToTest}
+          >
             Iniciar teste
           </button>
         </div>

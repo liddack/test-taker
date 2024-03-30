@@ -17,8 +17,8 @@ export default function RootLayout({
   return (
     <html lang="pt-br">
       <body className={inter.className}>
-        <div className={`p-24 min-h-screen flex flex-col items-center`}>
-          <nav className="flex justify-between self-start w-full">
+        <div className={`p-10 min-h-screen flex flex-col items-center`}>
+          <nav className="flex sm:justify-between justify-center flex-wrap self-start w-full gap-x-32">
             <Link href={"/"}>
               <span className="font-bold text-xl">Simulados</span>
             </Link>
@@ -36,7 +36,7 @@ export default function RootLayout({
               <span className="underline">Login</span>
             </Link> */}
           </nav>
-          {children}
+          <>{children}</>
         </div>
       </body>
     </html>
