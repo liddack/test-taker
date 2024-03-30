@@ -4,13 +4,14 @@ import Link from "next/link";
 import { Suspense, useEffect } from "react";
 import { readFromLocalStorage } from "./lib/utils/storage";
 import { useRouter } from "next/navigation";
+import { ImportedQuestion } from "@/interfaces/imported-question";
 
 export default function Home() {
   const router = useRouter();
   useEffect(() => {
-    const questions = readFromLocalStorage("questionsData");
+    const questions = readFromLocalStorage("questionsData") as ImportedQuestion[];
 
-    if (!questions) {
+    if (!questions?.length) {
       router.push("/upload-questions");
     } else {
       router.push("/take/standalone");
