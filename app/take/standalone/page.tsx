@@ -4,7 +4,6 @@ import { readFromLocalStorage } from "@/app/lib/utils/storage";
 import { StandaloneQuestion } from "@/classes/standalone-question";
 import ExamResult from "@/components/exam-result";
 import StandaloneExam from "@/components/standalone-exam";
-import { ImportedQuestion } from "@/interfaces/imported-question";
 import { TestExample } from "@/test-example";
 import { Question } from "@prisma/client";
 import { ReactNode, useEffect, useState } from "react";
@@ -54,4 +53,6 @@ export default function TakeStandalone({
       )}
     </Main>
   );
-}
+};
+
+export default TakeStandalone;

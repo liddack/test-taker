@@ -1,7 +1,8 @@
 import { ImportedQuestion } from "@/interfaces/imported-question";
 import { getRandomUUID } from "@/utils";
+import { Question } from "@prisma/client";
 
-export class StandaloneQuestion {
+export class StandaloneQuestion implements Question {
   constructor({ alternatives, command }: ImportedQuestion) {
     this.id = getRandomUUID();
     this.command = command;
@@ -10,10 +11,14 @@ export class StandaloneQuestion {
       if (a.isCorrect) return [...prev, i];
       return prev;
     }, [] as number[]);
+    this.questionSetId = null;
+    this.authorId = null;
   }
 
-  id?: string;
+  id: string;
   command: string | null;
   alternatives: string[];
   answers: number[];
+  questionSetId: string | null;
+  authorId: string | null;
 }

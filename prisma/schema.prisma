@@ -28,12 +28,12 @@ model QuestionSet {
 }
 
 model Question {
-  id            String      @id @default(uuid())
-  questionSetId String
-  questionSet   QuestionSet @relation(fields: [questionSetId], references: [id])
+  id            String       @id @default(uuid())
+  questionSetId String?
+  questionSet   QuestionSet? @relation(fields: [questionSetId], references: [id])
   command       String?
   alternatives  String[]
   answers       Int[]
-  author        User        @relation(fields: [authorId], references: [id])
-  authorId      String
+  author        User?        @relation(fields: [authorId], references: [id])
+  authorId      String?
 }
