@@ -1,5 +1,5 @@
 import { StandaloneQuestion } from "@/classes/standalone-question";
-import { Dispatch, SetStateAction } from "react";
+import { Dispatch, Fragment, SetStateAction } from "react";
 
 type ExamResultProps = {
   questions: StandaloneQuestion[];
@@ -32,10 +32,7 @@ export default function ExamResult({
         Você acertou {correctAnswers.length} de {questions.length} questões
       </h2>
       <p className="text-center mb-6">
-        <button
-          className={buttonStyle}
-          onClick={() => setShowResultsPage(false)}
-        >
+        <button className={buttonStyle} onClick={() => setShowResultsPage(false)}>
           Voltar
         </button>
       </p>
@@ -43,7 +40,7 @@ export default function ExamResult({
       {questions.map((q, i) => {
         const isCorrect = sameMembers(q.answers, answers[i]);
         return (
-          <>
+          <Fragment key={q.id}>
             <div className="border p-4 border-slate-400 my-2 rounded-md">
               <h3
                 className={`inline-flex items-center text-normal text-sm font-semibold mb-2 ${
@@ -69,6 +66,7 @@ export default function ExamResult({
                       <label className={`flex items-center`}>
                         <input
                           type={type}
+                          readOnly
                           checked={wasChosen}
                           onClick={() => {}}
                         />
@@ -79,7 +77,7 @@ export default function ExamResult({
                 })}
               </div>
             </div>
-          </>
+          </Fragment>
         );
       })}
     </>
