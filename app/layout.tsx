@@ -22,6 +22,16 @@ export default function RootLayout({
             <Link href={"/"}>
               <span className="font-bold text-xl">Simulados</span>
             </Link>
+            <nav className="font-normal">
+              <ul>
+                <li>
+                  <Link href={"/upload-questions"}>
+                    <span className="text-base">Enviar arquivo</span>
+                  </Link>
+                </li>
+              </ul>
+            </nav>
+
             {/* <Link href={"/"}>
               <span className="underline">Login</span>
             </Link> */}
