@@ -103,10 +103,8 @@ const UploadQuestions = () => {
           </svg>
           <p className="my-3 text-gray-700 max-w-xs mx-full">
             Clique para{" "}
-            <span className="font-medium text-indigo-600">
-              Enviar um arquivo
-            </span>{" "}
-            com as questões do simulado
+            <span className="font-medium text-indigo-600">Enviar um arquivo</span> com as
+            questões do simulado
           </p>
           {selectedFileName && (
             <>
@@ -132,11 +130,7 @@ const UploadQuestions = () => {
           </div>
           <span>O arquivo json deve respeitar o seguinte formato:</span>
           <div className="flex w-full text-xs max-h-[26rem] overflow-auto">
-            <SyntaxHighlighter
-              className="w-full rounded"
-              language="json"
-              style={prism}
-            >
+            <SyntaxHighlighter className="w-full rounded" language="json" style={prism}>
               {stringfiedQuestions}
             </SyntaxHighlighter>
           </div>
