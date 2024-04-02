@@ -1,3 +1,4 @@
+import { getCorrectAnswers, getPercentFromTotal } from "@/app/lib/utils/core";
 import { StandaloneQuestion } from "@/classes/standalone-question";
 import { Dispatch, Fragment, SetStateAction } from "react";
 
@@ -19,20 +20,34 @@ export default function ExamResult({
   answers,
   setShowResultsPage,
 }: ExamResultProps) {
-  const correctAnswers = answers?.filter((a, i) => {
-    const questionAnswers = questions[i]?.answers;
-    return sameMembers(a, questionAnswers);
-  });
+  const correctAnswers = getCorrectAnswers(answers, questions);
+
+  const answeredCount = answers.filter((answer) => answer.length > 0).length;
+
   return (
     <>
       <h1 className="text-6xl text-center font-bold mb-4">
-        {Math.round((correctAnswers.length / questions.length) * 100)}%
+        {getPercentFromTotal(correctAnswers.length, questions.length)}%
       </h1>
       <h2 className="text-2xl text-center font-bold mb-4">
-        Você acertou {correctAnswers.length} de {questions.length} questões
+        Você acertou {correctAnswers.length} de um total de {questions.length}{" "}
+        questões
       </h2>
+      {answeredCount !== questions.length && (
+        <div className="flex flex-col justify-center items-center  py-2">
+          <strong>Resultado parcial: </strong>
+          <p>{getPercentFromTotal(correctAnswers.length, answeredCount)}%</p>
+          <p>
+            Você acertou {correctAnswers.length} de {answeredCount} questões
+            respondidas
+          </p>
+        </div>
+      )}
       <p className="text-center mb-6">
-        <button className={buttonStyle} onClick={() => setShowResultsPage(false)}>
+        <button
+          className={buttonStyle}
+          onClick={() => setShowResultsPage(false)}
+        >
           Voltar
         </button>
       </p>
@@ -41,7 +56,7 @@ export default function ExamResult({
         const isCorrect = sameMembers(q.answers, answers[i]);
         return (
           <Fragment key={q.id}>
-            <div className="sm:w-[60rem] border p-4 border-slate-400 my-2 rounded-md">
+            <div className="lg:w-[60rem] border p-4 border-slate-400 my-2 rounded-md">
               <h3
                 className={`inline-flex items-center text-normal text-sm font-semibold mb-2 ${
                   isCorrect ? "text-emerald-700" : "text-red-600"

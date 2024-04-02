@@ -34,7 +34,9 @@ export default function StandaloneExam({
   setShowResultsPage,
 }: StandaloneExamProps) {
   const Main = ({ children }: { children: ReactNode }) => (
-    <main className="flex-start grow flex flex-col justify-center">{children}</main>
+    <main className="flex-start grow flex flex-col justify-center">
+      {children}
+    </main>
   );
   const buttonStyle = `px-3 py-2 mr-2 bg-slate-700 text-white rounded cursor-pointer hover:bg-slate-600 disabled:text-slate-300 disabled:bg-slate-500`;
 
@@ -55,7 +57,11 @@ export default function StandaloneExam({
   );
 
   const storeAnswer = useCallback(
-    (e: ChangeEvent<HTMLInputElement>, question: StandaloneQuestion, index: number) => {
+    (
+      e: ChangeEvent<HTMLInputElement>,
+      question: StandaloneQuestion,
+      index: number
+    ) => {
       const answersCp = [...answers];
       if (question.answers.length > 1) {
         // checkbox
@@ -82,7 +88,7 @@ export default function StandaloneExam({
 
   if (!questions.length) return <Main>Erro ao buscar teste.</Main>;
   return (
-    <div className="flex flex-col sm:w-[60rem]">
+    <div className="flex flex-col lg:w-[60rem]">
       <div className="flex justify-end">
         {currentQuestion + 1} de {questions.length}
       </div>
@@ -126,7 +132,7 @@ export default function StandaloneExam({
               Próxima {">"}
             </button>
           )}
-          {hasPrevious && !hasNext && (
+          {hasPrevious && (
             <button
               className={buttonStyle + ` font-bold`}
               onClick={() => setShowResultsPage(true)}
