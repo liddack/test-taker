@@ -1,3 +1,4 @@
+import { getCorrectAnswers, getPercentFromTotal } from "@/app/lib/utils/core";
 import { StandaloneQuestion } from "@/classes/standalone-question";
 import { Dispatch, Fragment, SetStateAction } from "react";
 
@@ -19,14 +20,12 @@ export default function ExamResult({
   answers,
   setShowResultsPage,
 }: ExamResultProps) {
-  const correctAnswers = answers?.filter((a, i) => {
-    const questionAnswers = questions[i]?.answers;
-    return sameMembers(a, questionAnswers);
-  });
+  const correctAnswers = getCorrectAnswers(answers, questions);
+
   return (
     <>
       <h1 className="text-6xl text-center font-bold mb-4">
-        {Math.round((correctAnswers.length / questions.length) * 100)}%
+        {getPercentFromTotal(correctAnswers.length, questions.length)}%
       </h1>
       <h2 className="text-2xl text-center font-bold mb-4">
         Você acertou {correctAnswers.length} de {questions.length} questões
