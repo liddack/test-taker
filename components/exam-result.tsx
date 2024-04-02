@@ -32,10 +32,7 @@ export default function ExamResult({
         Você acertou {correctAnswers.length} de {questions.length} questões
       </h2>
       <p className="text-center mb-6">
-        <button
-          className={buttonStyle}
-          onClick={() => setShowResultsPage(false)}
-        >
+        <button className={buttonStyle} onClick={() => setShowResultsPage(false)}>
           Voltar
         </button>
       </p>
@@ -50,7 +47,7 @@ export default function ExamResult({
                   isCorrect ? "text-emerald-700" : "text-red-600"
                 }`}
               >
-                {isCorrect ? "✅" : "❌"} {q.command}
+                {isCorrect ? "✅" : "❌"} {i + 1}. {q.command}
               </h3>
               <div className="ml-6 my-1">
                 {q.alternatives.map((alt, idx) => {
