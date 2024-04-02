@@ -32,7 +32,10 @@ export default function ExamResult({
         Você acertou {correctAnswers.length} de {questions.length} questões
       </h2>
       <p className="text-center mb-6">
-        <button className={buttonStyle} onClick={() => setShowResultsPage(false)}>
+        <button
+          className={buttonStyle}
+          onClick={() => setShowResultsPage(false)}
+        >
           Voltar
         </button>
       </p>
@@ -41,7 +44,7 @@ export default function ExamResult({
         const isCorrect = sameMembers(q.answers, answers[i]);
         return (
           <Fragment key={q.id}>
-            <div className="sm:w-[60rem] border p-4 border-slate-400 my-2 rounded-md">
+            <div className="lg:w-[60rem] border p-4 border-slate-400 my-2 rounded-md">
               <h3
                 className={`inline-flex items-center text-normal text-sm font-semibold mb-2 ${
                   isCorrect ? "text-emerald-700" : "text-red-600"
