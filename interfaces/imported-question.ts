@@ -4,6 +4,6 @@ interface ImportedAlternative {
 }
 
 export interface ImportedQuestion {
-  command: string;
+  command: string | string[];
   alternatives: ImportedAlternative[];
 }
