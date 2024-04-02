@@ -18,12 +18,21 @@ const exampleQuestions: ImportedQuestion[] = [
     ],
   },
   {
-    command: "Qual destes países não faz parte da União Europeia?",
+    command: [
+      "Considere o código abaixo:",
+      "```",
+      "<strong>Texto</strong>",
+      "```",
+      "O que ele faz?",
+    ],
     alternatives: [
-      { isCorrect: false, label: "França" },
-      { isCorrect: false, label: "Alemanha" },
-      { isCorrect: true, label: "Noruega" },
-      { isCorrect: false, label: "Itália" },
+      { isCorrect: false, label: "Adiciona uma imagem" },
+      { isCorrect: false, label: "Deixa o texto em itálico" },
+      { isCorrect: true, label: "Deixa o texto em negrito" },
+      {
+        isCorrect: false,
+        label: "Adiciona uma quebra de linha antes do texto",
+      },
     ],
   },
 ];
@@ -103,8 +112,10 @@ const UploadQuestions = () => {
           </svg>
           <p className="my-3 text-gray-700 max-w-xs mx-full">
             Clique para{" "}
-            <span className="font-medium text-indigo-600">Enviar um arquivo</span> com as
-            questões do simulado
+            <span className="font-medium text-indigo-600">
+              Enviar um arquivo
+            </span>{" "}
+            com as questões do simulado
           </p>
           {selectedFileName && (
             <>
@@ -130,10 +141,43 @@ const UploadQuestions = () => {
           </div>
           <span>O arquivo json deve respeitar o seguinte formato:</span>
           <div className="flex w-full text-xs max-h-[26rem] overflow-auto">
-            <SyntaxHighlighter className="w-full rounded" language="json" style={prism}>
+            <SyntaxHighlighter
+              className="w-full rounded"
+              language="json"
+              style={prism}
+            >
               {stringfiedQuestions}
             </SyntaxHighlighter>
           </div>
+          <br />
+          <p>
+            Para adicionar um bloco de código ao comando de uma questão,
+            transforme-o em um <em>array</em> e adicione cada linha como um
+            elemento do mesmo.
+          </p>
+          <p>
+            Em seguida, delimite o bloco de código usando os caracteres{" "}
+            <code className="font-bold bg-slate-300 rounded p-1">```</code>{" "}
+            (três crases), como na <em>segunda questão</em> do exemplo acima.
+          </p>
+          <p className="mt-2">
+            <strong>💡 Dica:</strong> use{" "}
+            <a
+              className="text-indigo-600 hover:underline"
+              target="_blank"
+              href="https://codepen.io/nosilleg/pen/KdmLPO"
+            >
+              esta ferramenta
+            </a>{" "}
+            para converter um texto com múltiplas linhas para um array JSON.
+          </p>
+          <p>
+            <a
+              className="text-indigo-600 hover:underline"
+              target="_blank"
+              href="https://github.com/liddack/test-taker/assets/8820502/5f205736-a48f-425d-a043-1bc380f4590c"
+            >🎬 Aqui está um vídeo demonstrando a ferramenta.</a>
+          </p>
         </div>
       ) : (
         <div className="w-full flex justify-center items-center flex-wrap gap-2">
