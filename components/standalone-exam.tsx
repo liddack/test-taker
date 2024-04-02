@@ -132,7 +132,7 @@ export default function StandaloneExam({
               Próxima {">"}
             </button>
           )}
-          {hasPrevious && !hasNext && (
+          {hasPrevious && (
             <button
               className={buttonStyle + ` font-bold`}
               onClick={() => setShowResultsPage(true)}

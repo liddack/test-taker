@@ -22,14 +22,27 @@ export default function ExamResult({
 }: ExamResultProps) {
   const correctAnswers = getCorrectAnswers(answers, questions);
 
+  const answeredCount = answers.filter((answer) => answer.length > 0).length;
+
   return (
     <>
       <h1 className="text-6xl text-center font-bold mb-4">
         {getPercentFromTotal(correctAnswers.length, questions.length)}%
       </h1>
       <h2 className="text-2xl text-center font-bold mb-4">
-        Você acertou {correctAnswers.length} de {questions.length} questões
+        Você acertou {correctAnswers.length} de um total de {questions.length}{" "}
+        questões
       </h2>
+      {answeredCount !== questions.length && (
+        <div className="flex flex-col justify-center items-center  py-2">
+          <strong>Resultado parcial: </strong>
+          <p>{getPercentFromTotal(correctAnswers.length, answeredCount)}%</p>
+          <p>
+            Você acertou {correctAnswers.length} de {answeredCount} questões
+            respondidas
+          </p>
+        </div>
+      )}
       <p className="text-center mb-6">
         <button
           className={buttonStyle}
