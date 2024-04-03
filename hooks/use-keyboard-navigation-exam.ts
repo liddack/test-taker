@@ -1,4 +1,4 @@
-import { useEffect, Dispatch, SetStateAction, useState } from "react";
+import { useEffect, Dispatch, SetStateAction } from "react";
 
 type UseKeyboardNavigationExamOptions = {
   currentQuestion: number;

@@ -43,7 +43,7 @@ export default function Questionnaire({ params }: { params: { qsid: number } }) 
         />
       ) : (
         <ExamResult
-          answers={answers}
+          userAnswers={answers}
           questions={questions}
           setShowResultsPage={setShowResultsPage}
         />

@@ -63,7 +63,7 @@ function TakeStandalone() {
         />
       ) : (
         <ExamResult
-          answers={answers}
+          userAnswers={answers}
           questions={questions}
           setShowResultsPage={setShowResultsPage}
         />
