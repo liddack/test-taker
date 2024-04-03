@@ -19,8 +19,5 @@ export const getCorrectAnswers = (
   return correctAnswers;
 };
 
-export const getPercentFromTotal = (count: number, total: number) => {
-  const percentFromTotal = Math.round((count / total) * 100);
-
-  return percentFromTotal;
-};
+export const getPercentFromTotal = (count: number, total: number) =>
+  total === 0 ? 0 : Math.round((count / total) * 100);
