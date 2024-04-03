@@ -9,12 +9,12 @@ import {
   SetStateAction,
   useCallback,
   useEffect,
+  useState,
 } from "react";
-import hljs from "highlight.js";
-import abap from "highlightjs-sap-abap/dist/abap.es.min";
-import "highlight.js/styles/xcode.css";
 
-hljs.registerLanguage("abap", abap);
+import { useKeyboardNavigationExam } from "@/hooks/use-keyboard-navigation-exam";
+import { useSyntaxHighlighting } from "@/hooks/use-syntax-highlighting";
+import { Kbd } from "./kbd";
 
 type StandaloneExamProps = {
   questions: Question[];
@@ -33,10 +33,18 @@ export default function StandaloneExam({
   setCurrentQuestion,
   setShowResultsPage,
 }: StandaloneExamProps) {
+  useSyntaxHighlighting();
+  const [isKeyboardCapable, setIsKeyboardCapable] = useState(true);
+  useKeyboardNavigationExam({
+    currentQuestion,
+    setCurrentQuestion,
+    totalQuestions: questions.length,
+    setShowResultsPage,
+    setIsKeyboardCapable,
+  });
+
   const Main = ({ children }: { children: ReactNode }) => (
-    <main className="flex-start grow flex flex-col justify-center">
-      {children}
-    </main>
+    <main className="flex-start grow flex flex-col justify-center">{children}</main>
   );
   const buttonStyle = `px-3 py-2 mr-2 bg-slate-700 text-white rounded cursor-pointer hover:bg-slate-600 disabled:text-slate-300 disabled:bg-slate-500`;
 
@@ -57,11 +65,7 @@ export default function StandaloneExam({
   );
 
   const storeAnswer = useCallback(
-    (
-      e: ChangeEvent<HTMLInputElement>,
-      question: StandaloneQuestion,
-      index: number
-    ) => {
+    (e: ChangeEvent<HTMLInputElement>, question: StandaloneQuestion, index: number) => {
       const answersCp = [...answers];
       if (question.answers.length > 1) {
         // checkbox
@@ -82,14 +86,11 @@ export default function StandaloneExam({
     [answers, currentQuestion, setAnswers]
   );
 
-  useEffect(() => {
-    hljs.highlightAll();
-  }, []);
-
   if (!questions.length) return <Main>Erro ao buscar teste.</Main>;
   return (
     <div className="flex flex-col lg:w-[60rem]">
       <div className="flex justify-end">
+        {/* {isKeyboardCapable && <span className="text-red">Entrada de teclado</span>} */}
         {currentQuestion + 1} de {questions.length}
       </div>
       <div
@@ -100,17 +101,18 @@ export default function StandaloneExam({
       <div className="relative pt-4">
         {q.alternatives.map((a, i) => (
           <div key={i} className="flex mb-3">
-            <input
-              className="h-4 w-4 mt-[0.2rem] border-gray-300 focus:ring-2 focus:ring-blue-300"
-              type={q.answers.length > 1 ? "checkbox" : "radio"}
-              id={`q:${q.id}_a:${i}`}
-              onChange={(e) => storeAnswer(e, q, i)}
-              checked={answers[currentQuestion]?.includes(i)}
-            ></input>
-            <label
-              className="ms-2 text font-medium text-gray-90 ml-2 block"
-              htmlFor={`q:${q.id}_a:${i}`}
-            >
+            <label className="text font-medium text-gray-90 ml-2 flex">
+              <input
+                key={i}
+                type={q.answers.length > 1 ? "checkbox" : "radio"}
+                className="me-2 h-4 w-4 mt-[0.2rem] border-gray-300 focus:ring-2 focus:ring-blue-300"
+                name={`q:${q.id}`}
+                data-index={i}
+                id={`q:${q.id}_a:${i}`}
+                onChange={(e) => storeAnswer(e, q, i)}
+                checked={answers[currentQuestion]?.includes(i)}
+                autoFocus={answers[currentQuestion]?.includes(i) || i === 0}
+              ></input>
               {a}
             </label>
           </div>
@@ -121,7 +123,7 @@ export default function StandaloneExam({
               className={buttonStyle}
               onClick={() => setCurrentQuestion(currentQuestion - 1)}
             >
-              {"<"} Anterior
+              {isKeyboardCapable ? <Kbd>&larr;</Kbd> : "<"} Anterior
             </button>
           )}
           {hasNext && (
@@ -129,7 +131,7 @@ export default function StandaloneExam({
               className={buttonStyle}
               onClick={() => hasNext && setCurrentQuestion(currentQuestion + 1)}
             >
-              Próxima {">"}
+              Próxima {isKeyboardCapable ? <Kbd>&rarr;</Kbd> : ">"}
             </button>
           )}
           {hasPrevious && (
@@ -137,7 +139,7 @@ export default function StandaloneExam({
               className={buttonStyle + ` font-bold`}
               onClick={() => setShowResultsPage(true)}
             >
-              Ver resultado
+              Ver resultado {isKeyboardCapable ? <Kbd>&crarr;</Kbd> : ">"}
             </button>
           )}
         </div>
