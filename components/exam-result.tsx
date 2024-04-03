@@ -1,6 +1,11 @@
 import { getCorrectAnswers, getPercentFromTotal } from "@/app/lib/utils/core";
 import { StandaloneQuestion } from "@/classes/standalone-question";
-import { Dispatch, Fragment, SetStateAction } from "react";
+import { Dispatch, Fragment, SetStateAction, useEffect } from "react";
+import hljs from "highlight.js";
+import abap from "highlightjs-sap-abap/dist/abap.es.min";
+import "highlight.js/styles/xcode.css";
+
+hljs.registerLanguage("abap", abap);
 
 type ExamResultProps = {
   questions: StandaloneQuestion[];
@@ -24,30 +29,29 @@ export default function ExamResult({
 
   const answeredCount = answers.filter((answer) => answer.length > 0).length;
 
+  useEffect(() => {
+    hljs.highlightAll();
+  }, []);
+
   return (
     <>
       <h1 className="text-6xl text-center font-bold mb-4">
         {getPercentFromTotal(correctAnswers.length, questions.length)}%
       </h1>
       <h2 className="text-2xl text-center font-bold mb-4">
-        Você acertou {correctAnswers.length} de um total de {questions.length}{" "}
-        questões
+        Você acertou {correctAnswers.length} de um total de {questions.length} questões
       </h2>
       {answeredCount !== questions.length && (
         <div className="flex flex-col justify-center items-center  py-2">
           <strong>Resultado parcial: </strong>
           <p>{getPercentFromTotal(correctAnswers.length, answeredCount)}%</p>
           <p>
-            Você acertou {correctAnswers.length} de {answeredCount} questões
-            respondidas
+            Você acertou {correctAnswers.length} de {answeredCount} questões respondidas
           </p>
         </div>
       )}
       <p className="text-center mb-6">
-        <button
-          className={buttonStyle}
-          onClick={() => setShowResultsPage(false)}
-        >
+        <button className={buttonStyle} onClick={() => setShowResultsPage(false)}>
           Voltar
         </button>
       </p>
@@ -58,11 +62,15 @@ export default function ExamResult({
           <Fragment key={q.id}>
             <div className="lg:w-[60rem] border p-4 border-slate-400 my-2 rounded-md">
               <h3
-                className={`inline-flex items-center text-normal text-sm font-semibold mb-2 ${
+                className={`inline-flex items-baseline text-normal text-sm font-semibold mb-2 ${
                   isCorrect ? "text-emerald-700" : "text-red-600"
                 }`}
               >
-                {isCorrect ? "✅" : "❌"} {i + 1}. {q.command}
+                <span className="shrink-0">{isCorrect ? "✅" : "❌"}</span>
+                <span
+                  className="pl-1 prose text-inherit text-sm prose-pre:bg-white"
+                  dangerouslySetInnerHTML={{ __html: q.command ?? "" }}
+                ></span>
               </h3>
               <div className="ml-6 my-1">
                 {q.alternatives.map((alt, idx) => {
