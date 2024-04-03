@@ -58,15 +58,20 @@ export default function ExamResult({
           <Fragment key={q.id}>
             <div className="lg:w-[60rem] border p-4 border-slate-400 my-2 rounded-md">
               <h3
-                className={`inline-flex items-baseline text-normal text-sm font-semibold mb-2 ${
+                className={`flex justify-between items-baseline text-normal text-sm font-semibold mb-2 ${
                   isCorrect ? "text-emerald-700" : "text-red-600"
                 }`}
               >
-                <span className="shrink-0">{isCorrect ? "✅" : "❌"}</span>
-                <span
-                  className="pl-1 prose text-inherit text-sm prose-pre:bg-white"
-                  dangerouslySetInnerHTML={{ __html: q.command ?? "" }}
-                ></span>
+                <div className="inline-flex">
+                  <span className="shrink-0">{isCorrect ? "✅" : "❌"}</span>
+                  <span
+                    className="pl-1 prose text-inherit text-sm prose-pre:bg-white"
+                    dangerouslySetInnerHTML={{ __html: q.command ?? "" }}
+                  ></span>
+                </div>
+                <span className="text-slate-400 justify-self-end font-normal text-sm">
+                  {i + 1} de {questions.length}
+                </span>
               </h3>
               <div className="ml-6 my-1">
                 {q.alternatives.map((alt, idx) => {
