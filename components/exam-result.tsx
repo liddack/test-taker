@@ -33,8 +33,8 @@ export default function ExamResult({
     hljs.highlightAll();
   }, []);
 
-  console.log("correctAnswers.length", correctAnswers.length);
-  console.log("answeredCount", answeredCount);
+  console.debug("correctAnswers.length", correctAnswers.length);
+  console.debug("answeredCount", answeredCount);
 
   return (
     <>
