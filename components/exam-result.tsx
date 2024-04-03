@@ -1,11 +1,7 @@
 import { getCorrectAnswers, getPercentFromTotal } from "@/app/lib/utils/core";
 import { StandaloneQuestion } from "@/classes/standalone-question";
-import { Dispatch, Fragment, SetStateAction, useEffect } from "react";
-import hljs from "highlight.js";
-import abap from "highlightjs-sap-abap/dist/abap.es.min";
-import "highlight.js/styles/xcode.css";
-
-hljs.registerLanguage("abap", abap);
+import { useSyntaxHighlighting } from "@/hooks/use-syntax-highlighting";
+import { Dispatch, Fragment, SetStateAction } from "react";
 
 type ExamResultProps = {
   questions: StandaloneQuestion[];
@@ -25,13 +21,10 @@ export default function ExamResult({
   answers,
   setShowResultsPage,
 }: ExamResultProps) {
+  useSyntaxHighlighting();
+
   const correctAnswers = getCorrectAnswers(answers, questions);
-
   const answeredCount = answers.filter((answer) => answer.length > 0).length;
-
-  useEffect(() => {
-    hljs.highlightAll();
-  }, []);
 
   console.debug("correctAnswers.length", correctAnswers.length);
   console.debug("answeredCount", answeredCount);
