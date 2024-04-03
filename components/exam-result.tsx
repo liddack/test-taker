@@ -33,6 +33,9 @@ export default function ExamResult({
     hljs.highlightAll();
   }, []);
 
+  console.log("correctAnswers.length", correctAnswers.length);
+  console.log("answeredCount", answeredCount);
+
   return (
     <>
       <h1 className="text-6xl text-center font-bold mb-4">
