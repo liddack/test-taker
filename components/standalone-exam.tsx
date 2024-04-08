@@ -58,7 +58,7 @@ export default function StandaloneExam({
     <>
       {count > 1 ? (
         <>
-          Esta questão possui <strong>{count}</strong> respostas corretas.
+          Esta questão possui <strong>{count}</strong> alternativas corretas.
         </>
       ) : (
         `Escolha a resposta correta.`
