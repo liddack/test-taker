@@ -8,12 +8,14 @@ import {
   ReactNode,
   SetStateAction,
   useCallback,
+  useContext,
   useState,
 } from "react";
 
 import { useKeyboardNavigationExam } from "@/hooks/use-keyboard-navigation-exam";
 import { useSyntaxHighlighting } from "@/hooks/use-syntax-highlighting";
 import { Kbd } from "./kbd";
+import { ShowCorrectAlternativesContext } from "@/contexts/show-correct-alternatives";
 
 type StandaloneExamProps = {
   questions: Question[];
@@ -32,8 +34,9 @@ export default function StandaloneExam({
   setCurrentQuestion,
   setShowResultsPage,
 }: StandaloneExamProps) {
-  useSyntaxHighlighting();
+  const [showCorrectAlternatives] = useContext(ShowCorrectAlternativesContext);
   const [isKeyboardCapable, setIsKeyboardCapable] = useState(true);
+  useSyntaxHighlighting();
   useKeyboardNavigationExam({
     currentQuestion,
     setCurrentQuestion,
@@ -64,7 +67,11 @@ export default function StandaloneExam({
   );
 
   const storeAnswer = useCallback(
-    (e: ChangeEvent<HTMLInputElement>, question: StandaloneQuestion, index: number) => {
+    (
+      e: ChangeEvent<HTMLInputElement>,
+      question: StandaloneQuestion,
+      index: number
+    ) => {
       const answersCp = [...answers];
       if (question.answers.length > 1) {
         // checkbox
@@ -96,7 +103,9 @@ export default function StandaloneExam({
         className="text-xl font-bold mb-1 prose prose-pre:bg-white prose-code:text-sm"
         dangerouslySetInnerHTML={{ __html: q.command ?? "" }}
       ></div>
-      <span className="text-sm">{questionCount(q.answers.length)}</span>
+      {showCorrectAlternatives && (
+        <span className="text-sm">{questionCount(q.answers.length)}</span>
+      )}
       <div className="relative pt-4">
         {q.alternatives.map((a, i) => (
           <div key={i} className="flex mb-3">
