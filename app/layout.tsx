@@ -1,8 +1,5 @@
-import Link from "next/link";
 import "./globals.css";
-import { Inter } from "next/font/google";
-
-const inter = Inter({ subsets: ["latin"] });
+import Body from "@/components/body";
 
 export const metadata = {
   title: "Simulados SAP",
@@ -12,29 +9,7 @@ export const metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="pt-br">
-      <body className={inter.className}>
-        <div className={`p-10 min-h-screen flex flex-col items-center`}>
-          <nav className="flex sm:justify-between justify-center flex-wrap self-start w-full gap-x-32">
-            <Link href={"/"}>
-              <span className="font-bold text-xl">Simulados</span>
-            </Link>
-            <nav className="font-normal">
-              <ul>
-                <li>
-                  <Link href={"/upload-questions"}>
-                    <span className="text-base">Enviar arquivo</span>
-                  </Link>
-                </li>
-              </ul>
-            </nav>
-
-            {/* <Link href={"/"}>
-              <span className="underline">Login</span>
-            </Link> */}
-          </nav>
-          <>{children}</>
-        </div>
-      </body>
+      <Body>{children}</Body>
     </html>
   );
 }

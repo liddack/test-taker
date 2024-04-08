@@ -37,9 +37,13 @@ function TakeStandalone() {
   const [answers, setAnswers] = useState<number[][]>([]);
 
   useEffect(() => {
-    const questionsData = readFromLocalStorage("questionsData") as ImportedQuestion[];
+    const questionsData = readFromLocalStorage(
+      "questionsData"
+    ) as ImportedQuestion[];
     const shuffledQuestions = shuffleQuestions(questionsData);
-    const questionsStandalone = shuffledQuestions?.map((q) => new StandaloneQuestion(q));
+    const questionsStandalone = shuffledQuestions?.map(
+      (q) => new StandaloneQuestion(q)
+    );
 
     setQuestions(questionsStandalone);
     setAnswers(questionsStandalone.map(() => []));
