@@ -24,11 +24,11 @@ export default function ExamResult({
   setShowResultsPage,
 }: ExamResultProps) {
   const [showAnsweredOnly, setShowAnsweredOnly] = useState(false);
-  useSyntaxHighlighting();
   const isKeyboardCapable = useKeyboardNavigationResults({
     setShowAnsweredOnly,
     setShowResultsPage,
   });
+  useSyntaxHighlighting();
 
   const correctAnswers = getCorrectAnswers(answers, questions);
   const answeredCount = answers.filter((answer) => answer.length > 0).length;
@@ -63,16 +63,14 @@ export default function ExamResult({
         {getPercentFromTotal(correctAnswers.length, questions.length)}%
       </h1>
       <h2 className="text-2xl text-center font-bold mb-4">
-        Você acertou {correctAnswers.length} de um total de {questions.length}{" "}
-        questões
+        Você acertou {correctAnswers.length} de um total de {questions.length} questões
       </h2>
       {answeredCount !== questions.length && (
         <div className="flex flex-col justify-center items-center  py-2">
           <strong>Resultado parcial: </strong>
           <p>{getPercentFromTotal(correctAnswers.length, answeredCount)}%</p>
           <p>
-            Você acertou {correctAnswers.length} de {answeredCount} questões
-            respondidas
+            Você acertou {correctAnswers.length} de {answeredCount} questões respondidas
           </p>
         </div>
       )}
@@ -95,9 +93,7 @@ export default function ExamResult({
         </label>
       </p>
       {results.length === 0 && (
-        <p className="text-center mt-10 text-slate-500">
-          Nenhuma questão foi respondida
-        </p>
+        <p className="text-center mt-10 text-slate-500">Nenhuma questão foi respondida</p>
       )}
       {results.map(({ question, userAnswer, index, total }) => {
         const isCorrect = sameMembers(question.answers, userAnswer);
@@ -112,7 +108,7 @@ export default function ExamResult({
                 <div className="inline-flex">
                   <span className="shrink-0">{isCorrect ? "✅" : "❌"}</span>
                   <span
-                    className="pl-1 prose text-inherit text-sm prose-pre:bg-white"
+                    className="pl-1 prose text-inherit text-sm prose-pre:bg-white prose-code:text-slate-800"
                     dangerouslySetInnerHTML={{ __html: question.command ?? "" }}
                   ></span>
                 </div>
@@ -141,7 +137,10 @@ export default function ExamResult({
                           checked={wasChosen}
                           onClick={() => {}}
                         />
-                        <span className="ml-1">{alt}</span>
+                        <span
+                          className="ml-1"
+                          dangerouslySetInnerHTML={{ __html: alt }}
+                        ></span>
                       </label>
                     </div>
                   );
