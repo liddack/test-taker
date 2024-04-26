@@ -67,11 +67,7 @@ export default function StandaloneExam({
   );
 
   const storeAnswer = useCallback(
-    (
-      e: ChangeEvent<HTMLInputElement>,
-      question: StandaloneQuestion,
-      index: number
-    ) => {
+    (e: ChangeEvent<HTMLInputElement>, question: StandaloneQuestion, index: number) => {
       const answersCp = [...answers];
       if (question.answers.length > 1) {
         // checkbox
@@ -109,20 +105,22 @@ export default function StandaloneExam({
       <div className="relative pt-4">
         {q.alternatives.map((a, i) => (
           <div key={i} className="flex mb-3">
-            <label className="text font-medium text-gray-90 ml-2 flex">
-              <input
-                key={i}
-                type={q.answers.length > 1 ? "checkbox" : "radio"}
-                className="me-2 h-4 w-4 mt-[0.2rem] border-gray-300 focus:ring-2 focus:ring-blue-300"
-                name={`q:${q.id}`}
-                data-index={i}
-                id={`q:${q.id}_a:${i}`}
-                onChange={(e) => storeAnswer(e, q, i)}
-                checked={answers[currentQuestion]?.includes(i)}
-                autoFocus={answers[currentQuestion]?.includes(i) || i === 0}
-              ></input>
-              {a}
-            </label>
+            <input
+              key={i}
+              type={q.answers.length > 1 ? "checkbox" : "radio"}
+              className="me-2 h-4 w-4 mt-[0.2rem] border-gray-300 focus:ring-2 focus:ring-blue-300"
+              name={`q:${q.id}`}
+              data-index={i}
+              id={`q:${q.id}_a:${i}`}
+              onChange={(e) => storeAnswer(e, q, i)}
+              checked={answers[currentQuestion]?.includes(i)}
+              autoFocus={answers[currentQuestion]?.includes(i) || i === 0}
+            ></input>
+            <label
+              className="text font-medium text-gray-90 ml-2 flex gap-2"
+              htmlFor={`q:${q.id}_a:${i}`}
+              dangerouslySetInnerHTML={{ __html: a ?? "" }}
+            ></label>
           </div>
         ))}
         <div className="flex justify-center mt-6">

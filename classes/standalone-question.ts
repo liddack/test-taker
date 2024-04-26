@@ -7,7 +7,10 @@ export class StandaloneQuestion implements Question {
   constructor({ alternatives, command }: ImportedQuestion) {
     this.id = getRandomUUID();
     this.command = Array.isArray(command) ? command.join("\n") : command;
-    this.command = micromark(this.command);
+    this.command = micromark(this.command, "utf-8", {
+      allowDangerousHtml: true,
+      defaultLineEnding: "\n",
+    });
     this.command = this.command.replaceAll("<code>", '<code class="language-abap">');
     this.alternatives = alternatives.map((a) => a.label);
     this.answers = alternatives.reduce((prev, a, i) => {
