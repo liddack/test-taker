@@ -8,5 +8,5 @@ hljs.registerLanguage("abap", abap);
 export function useSyntaxHighlighting() {
   useEffect(() => {
     hljs.highlightAll();
-  }, []);
+  });
 }
