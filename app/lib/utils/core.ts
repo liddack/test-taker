@@ -8,10 +8,8 @@ const containsAll = (arr1: number[], arr2: number[]) =>
 const sameMembers = (arr1: number[], arr2: number[]) =>
   containsAll(arr1, arr2) && containsAll(arr2, arr1);
 
-export const getCorrectAnswers = (
-  userAnswers: number[][],
-  questions: StandaloneQuestion[]
-) => {
+export const getCorrectAnswers = (questions: StandaloneQuestion[]) => {
+  const userAnswers = questions.map((q) => q.checkedAlternatives);
   const correctAnswers = userAnswers?.filter((answer, index) => {
     const questionAnswers = questions[index]?.answers;
 

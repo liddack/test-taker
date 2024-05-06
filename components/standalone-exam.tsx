@@ -1,6 +1,5 @@
 "use client";
 
-import { Question } from ".prisma/client";
 import { StandaloneQuestion } from "@/classes/standalone-question";
 import {
   ChangeEvent,
@@ -16,43 +15,48 @@ import { useKeyboardNavigationExam } from "@/hooks/use-keyboard-navigation-exam"
 import { useSyntaxHighlighting } from "@/hooks/use-syntax-highlighting";
 import { Kbd } from "./kbd";
 import { ShowCorrectAlternativesContext } from "@/contexts/show-correct-alternatives";
+import { AppSetting, db } from "@/db/db.model";
+import { useLiveQuery } from "dexie-react-hooks";
 
 type StandaloneExamProps = {
-  questions: Question[];
   setShowResultsPage: Dispatch<SetStateAction<boolean>>;
-  answers: number[][] | undefined;
-  setAnswers: (id: string, answer: number[]) => void;
-  currentQuestion: number;
-  setCurrentQuestion: (value: number) => void;
+  questionIds: string[];
 };
 
 export default function StandaloneExam({
-  questions,
-  answers,
-  setAnswers: setCheckedAlternatives,
-  currentQuestion,
-  setCurrentQuestion,
+  questionIds,
   setShowResultsPage,
 }: StandaloneExamProps) {
   const [showCorrectAlternatives] = useContext(ShowCorrectAlternativesContext);
+  const currentQuestion =
+    useLiveQuery(() => db.settings.get(AppSetting.CurrentQuestion))?.value ?? 0;
+  const setCurrentQuestion = (value: number) =>
+    db.settings.update(AppSetting.CurrentQuestion, { value });
+  const setCheckedAlternatives = useCallback((id: string, answer: number[]) => {
+    db.questions.update(id, { checkedAlternatives: answer });
+  }, []);
   const [isKeyboardCapable, setIsKeyboardCapable] = useState(true);
   useSyntaxHighlighting();
   useKeyboardNavigationExam({
     currentQuestion,
     setCurrentQuestion,
-    totalQuestions: questions.length,
+    totalQuestions: questionIds?.length ?? 0,
     setShowResultsPage,
     setIsKeyboardCapable,
   });
+  const question = useLiveQuery(
+    () => db.questions.get(questionIds[currentQuestion]),
+    [currentQuestion]
+  );
+  console.debug("questionIds[currentQuestion]", questionIds[currentQuestion]);
 
   const Main = ({ children }: { children: ReactNode }) => (
     <main className="flex-start grow flex flex-col justify-center">{children}</main>
   );
   const buttonStyle = `px-3 py-2 mr-2 bg-slate-700 text-white rounded cursor-pointer hover:bg-slate-600 disabled:text-slate-300 disabled:bg-slate-500`;
 
-  const question = questions[currentQuestion] as StandaloneQuestion,
-    hasPrevious = currentQuestion - 1 >= 0,
-    hasNext = currentQuestion + 1 < questions.length;
+  const hasPrevious = currentQuestion - 1 >= 0;
+  const hasNext = currentQuestion + 1 < questionIds.length;
 
   const questionCount = (count: number) => (
     <>
@@ -68,9 +72,7 @@ export default function StandaloneExam({
 
   const storeAnswer = useCallback(
     (e: ChangeEvent<HTMLInputElement>, question: StandaloneQuestion, index: number) => {
-      if (!answers) return;
-      const answersCp = [...answers];
-      let markedAlternatives = answersCp[currentQuestion];
+      let markedAlternatives = question.checkedAlternatives;
       if (question.answers.length > 1) {
         // checkbox
         if (e.currentTarget.checked) {
@@ -83,17 +85,16 @@ export default function StandaloneExam({
         markedAlternatives = [index];
       }
       setCheckedAlternatives(question.id, markedAlternatives);
-      console.debug(answersCp);
+      console.debug(markedAlternatives);
     },
-    [answers, currentQuestion, setCheckedAlternatives]
+    [setCheckedAlternatives]
   );
 
-  if (!questions.length) return <Main>Carregando questões...</Main>;
+  if (question === undefined) return <Main>Carregando questão...</Main>;
   return (
     <div className="flex flex-col lg:w-[60rem]">
       <div className="flex justify-end">
-        {/* {isKeyboardCapable && <span className="text-red">Entrada de teclado</span>} */}
-        {currentQuestion + 1} de {questions.length}
+        {currentQuestion + 1} de {questionIds.length}
       </div>
       <div
         className="text-xl font-bold mb-1 prose prose-pre:bg-white prose-code:text-sm"
@@ -113,8 +114,8 @@ export default function StandaloneExam({
               data-index={i}
               id={`q:${question.id}_a:${i}`}
               onChange={(e) => storeAnswer(e, question, i)}
-              checked={answers?.[currentQuestion]?.includes(i)}
-              autoFocus={answers?.[currentQuestion]?.includes(i) || i === 0}
+              checked={question.checkedAlternatives?.includes(i)}
+              autoFocus={question.checkedAlternatives?.includes(i) || i === 0}
             ></input>
             <label
               className="text font-medium text-gray-90 ml-2 flex gap-2"

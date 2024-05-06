@@ -18,7 +18,7 @@ export function useKeyboardNavigationResults({
     setIsKeyboardCapable(isDesktop);
     const handleKeyDown = (e: KeyboardEvent) => {
       setIsKeyboardCapable(true);
-      console.log(e.key);
+      console.debug("Pressed key:", e.key);
       switch (e.key) {
         case "Escape":
           e.preventDefault();

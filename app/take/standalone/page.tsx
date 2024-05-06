@@ -2,25 +2,28 @@
 
 import ExamResult from "@/components/exam-result";
 import StandaloneExam from "@/components/standalone-exam";
-import { AppSetting, db } from "@/db/db.model";
-import { useLiveQuery } from "dexie-react-hooks";
+import { db } from "@/db/db.model";
 import { useRouter } from "next/navigation";
-import { ReactNode, useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
 
 function TakeStandalone() {
-  const questions = useLiveQuery(() => db.questions.toArray());
-  const currentQuestion =
-    useLiveQuery(() => db.settings.get(AppSetting.CurrentQuestion))?.value ?? 0;
-  const setCurrentQuestion = (value: number) =>
-    db.settings.update(AppSetting.CurrentQuestion, { value });
+  const [questionIds, setQuestionIds] = useState([] as string[]);
+  const [isLoading, setIsLoading] = useState(true);
   const [showResultsPage, setShowResultsPage] = useState(false);
-  const answers = questions?.map((q) => q.checkedAlternatives);
-  const setAnswers = (id: string, answer: number[]) => {
-    db.questions.update(id, { checkedAlternatives: answer });
-  };
+  useEffect(() => {
+    const getKeys = async () => {
+      const keys = (
+        await db.transaction("r", db.questions, () => db.questions.toCollection().keys())
+      ).map((id) => id.toString());
+      console.debug(keys);
+      setQuestionIds(keys);
+      setIsLoading(false);
+    };
+    getKeys();
+  }, []);
 
   const router = useRouter();
-  if (questions !== undefined && questions.length === 0) {
+  if (!isLoading && questionIds.length === 0) {
     router.push("/upload-questions");
   }
 
@@ -28,24 +31,16 @@ function TakeStandalone() {
     <main className="flex-start grow flex flex-col justify-center">{children}</main>
   );
 
-  if (questions === undefined) return <Main>Carregando questões...</Main>;
+  if (isLoading) return <Main>Carregando questões...</Main>;
   return (
     <Main>
       {!showResultsPage ? (
         <StandaloneExam
-          questions={questions}
+          questionIds={questionIds}
           setShowResultsPage={setShowResultsPage}
-          answers={answers}
-          setAnswers={setAnswers}
-          currentQuestion={currentQuestion}
-          setCurrentQuestion={setCurrentQuestion}
         />
       ) : (
-        <ExamResult
-          userAnswers={answers}
-          questions={questions}
-          setShowResultsPage={setShowResultsPage}
-        />
+        <ExamResult setShowResultsPage={setShowResultsPage} />
       )}
     </Main>
   );

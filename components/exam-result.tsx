@@ -1,5 +1,4 @@
 import { getCorrectAnswers, getPercentFromTotal } from "@/app/lib/utils/core";
-import { StandaloneQuestion } from "@/classes/standalone-question";
 import { useKeyboardNavigationResults } from "@/hooks/use-keyboard-navigation-results";
 import { useSyntaxHighlighting } from "@/hooks/use-syntax-highlighting";
 import { Dispatch, Fragment, SetStateAction, useCallback } from "react";
@@ -8,9 +7,7 @@ import { AppSetting, db } from "@/db/db.model";
 import { useLiveQuery } from "dexie-react-hooks";
 
 type ExamResultProps = {
-  questions: StandaloneQuestion[];
   setShowResultsPage: Dispatch<SetStateAction<boolean>>;
-  userAnswers: number[][] | undefined;
 };
 
 const buttonStyle = `px-3 py-2 mr-2 bg-slate-700 text-white rounded cursor-pointer hover:bg-slate-600 disabled:text-slate-300 disabled:bg-slate-500`;
@@ -20,11 +17,7 @@ const containsAll = (arr1: number[], arr2: number[]) =>
 const sameMembers = (arr1: number[], arr2: number[]) =>
   containsAll(arr1, arr2) && containsAll(arr2, arr1);
 
-export default function ExamResult({
-  questions,
-  userAnswers: answers,
-  setShowResultsPage,
-}: ExamResultProps) {
+export default function ExamResult({ setShowResultsPage }: ExamResultProps) {
   const showAnsweredOnly =
     (useLiveQuery(() => db.settings.get(AppSetting.ShowAnsweredQuestionsOnly))
       ?.value as boolean) ?? false;
@@ -37,33 +30,28 @@ export default function ExamResult({
   });
   useSyntaxHighlighting();
 
-  answers ??= [];
-
-  const correctAnswers = getCorrectAnswers(answers, questions);
-  const answeredCount = answers.filter((answer) => answer.length > 0).length;
+  let questions = useLiveQuery(() => db.questions.toArray());
+  const isLoading = questions === undefined;
+  questions ??= [];
+  const correctAnswers = getCorrectAnswers(questions);
+  const answeredCount = questions.filter((q) => q.checkedAlternatives.length > 0).length;
   const handleShowAnsweredOnly = () => setShowAnsweredOnly(!showAnsweredOnly);
-
-  console.debug("correctAnswers.length", correctAnswers.length);
-  console.debug("answeredCount", answeredCount);
 
   const getResults = useCallback(() => {
     if (showAnsweredOnly) {
-      const userAnsweredOnly = answers.filter((a) => a.length > 0);
-      const answeredQuestions = questions.filter((_, i) => answers[i].length > 0);
+      const answeredQuestions = questions.filter((q) => q.checkedAlternatives.length > 0);
       return answeredQuestions.map((question, i) => ({
         question,
-        userAnswer: userAnsweredOnly[i],
         index: i,
-        total: userAnsweredOnly.length,
+        total: answeredCount,
       }));
     }
     return questions.map((question, i) => ({
       question,
-      userAnswer: answers[i],
       index: i,
-      total: answers.length,
+      total: questions.length,
     }));
-  }, [showAnsweredOnly, answers, questions]);
+  }, [showAnsweredOnly, answeredCount, questions]);
 
   const results = getResults();
 
@@ -102,13 +90,15 @@ export default function ExamResult({
           {isKeyboardCapable && <Kbd>Q</Kbd>}
         </label>
       </p>
-      {results.length === 0 && (
+      {isLoading && <p className="text-center mt-10">Carregando resultados...</p>}
+      {!isLoading && results.length === 0 && (
         <p className="text-center mt-10 text-slate-500">Nenhuma questão foi respondida</p>
       )}
-      {results.map(({ question, userAnswer, index, total }) => {
-        const isCorrect = sameMembers(question.answers, userAnswer);
+      {results.map(({ question, index, total }) => {
+        const { id, command, answers, checkedAlternatives, alternatives } = question;
+        const isCorrect = sameMembers(answers, checkedAlternatives);
         return (
-          <Fragment key={question.id}>
+          <Fragment key={id}>
             <div className="lg:w-[60rem] border p-4 border-slate-400 my-2 rounded-md">
               <h3
                 className={`flex justify-between items-baseline text-normal text-sm font-semibold mb-2 ${
@@ -119,7 +109,7 @@ export default function ExamResult({
                   <span className="shrink-0">{isCorrect ? "✅" : "❌"}</span>
                   <span
                     className="pl-1 prose text-inherit text-sm prose-pre:bg-white prose-code:text-slate-800"
-                    dangerouslySetInnerHTML={{ __html: question.command ?? "" }}
+                    dangerouslySetInnerHTML={{ __html: command ?? "" }}
                   ></span>
                 </div>
                 <span className="text-slate-400 justify-self-end font-normal text-sm">
@@ -127,10 +117,10 @@ export default function ExamResult({
                 </span>
               </h3>
               <div className="ml-6 my-1">
-                {question.alternatives.map((alt, idx) => {
-                  const wasChosen = userAnswer?.includes(idx);
-                  const isCorrect = question.answers.includes(idx);
-                  const type = question.answers.length > 1 ? "checkbox" : "radio";
+                {alternatives.map((alt, idx) => {
+                  const wasChosen = checkedAlternatives?.includes(idx);
+                  const isCorrect = answers.includes(idx);
+                  const type = answers.length > 1 ? "checkbox" : "radio";
                   return (
                     <div
                       key={idx}
