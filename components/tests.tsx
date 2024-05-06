@@ -1,4 +1,4 @@
-import { QuestionSet } from "@prisma/client";
+import { QuestionSet } from "@/interfaces/question-set";
 import Link from "next/link";
 
 export async function HomeTests() {
