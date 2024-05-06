@@ -21,7 +21,7 @@ type StandaloneExamProps = {
   questions: Question[];
   setShowResultsPage: Dispatch<SetStateAction<boolean>>;
   answers: number[][];
-  setAnswers: Dispatch<SetStateAction<number[][]>>;
+  setAnswers: (id: string, answer: number[]) => void;
   currentQuestion: number;
   setCurrentQuestion: Dispatch<SetStateAction<number>>;
 };
@@ -29,7 +29,7 @@ type StandaloneExamProps = {
 export default function StandaloneExam({
   questions,
   answers,
-  setAnswers,
+  setAnswers: setCheckedAlternatives,
   currentQuestion,
   setCurrentQuestion,
   setShowResultsPage,
@@ -50,7 +50,7 @@ export default function StandaloneExam({
   );
   const buttonStyle = `px-3 py-2 mr-2 bg-slate-700 text-white rounded cursor-pointer hover:bg-slate-600 disabled:text-slate-300 disabled:bg-slate-500`;
 
-  const q = questions[currentQuestion],
+  const question = questions[currentQuestion] as StandaloneQuestion,
     hasPrevious = currentQuestion - 1 >= 0,
     hasNext = currentQuestion + 1 < questions.length;
 
@@ -69,26 +69,25 @@ export default function StandaloneExam({
   const storeAnswer = useCallback(
     (e: ChangeEvent<HTMLInputElement>, question: StandaloneQuestion, index: number) => {
       const answersCp = [...answers];
+      let markedAlternatives = answersCp[currentQuestion];
       if (question.answers.length > 1) {
         // checkbox
         if (e.currentTarget.checked) {
-          answersCp[currentQuestion].push(index);
+          markedAlternatives.push(index);
         } else {
-          answersCp[currentQuestion] = answersCp[currentQuestion].filter(
-            (a) => a != index
-          );
+          markedAlternatives = markedAlternatives.filter((a) => a != index);
         }
       } else {
         // radio
-        answersCp[currentQuestion] = [index];
+        markedAlternatives = [index];
       }
-      setAnswers(answersCp);
+      setCheckedAlternatives(question.id, markedAlternatives);
       console.log(answersCp);
     },
-    [answers, currentQuestion, setAnswers]
+    [answers, currentQuestion, setCheckedAlternatives]
   );
 
-  if (!questions.length) return <Main>Erro ao buscar teste.</Main>;
+  if (!questions.length) return <Main>Carregando teste...</Main>;
   return (
     <div className="flex flex-col lg:w-[60rem]">
       <div className="flex justify-end">
@@ -97,28 +96,28 @@ export default function StandaloneExam({
       </div>
       <div
         className="text-xl font-bold mb-1 prose prose-pre:bg-white prose-code:text-sm"
-        dangerouslySetInnerHTML={{ __html: q.command ?? "" }}
+        dangerouslySetInnerHTML={{ __html: question.command ?? "" }}
       ></div>
       {showCorrectAlternatives && (
-        <span className="text-sm">{questionCount(q.answers.length)}</span>
+        <span className="text-sm">{questionCount(question.answers.length)}</span>
       )}
       <div className="relative pt-4">
-        {q.alternatives.map((a, i) => (
+        {question.alternatives.map((a, i) => (
           <div key={i} className="flex mb-3">
             <input
               key={i}
-              type={q.answers.length > 1 ? "checkbox" : "radio"}
+              type={question.answers.length > 1 ? "checkbox" : "radio"}
               className="me-2 h-4 w-4 mt-[0.2rem] border-gray-300 focus:ring-2 focus:ring-blue-300"
-              name={`q:${q.id}`}
+              name={`q:${question.id}`}
               data-index={i}
-              id={`q:${q.id}_a:${i}`}
-              onChange={(e) => storeAnswer(e, q, i)}
+              id={`q:${question.id}_a:${i}`}
+              onChange={(e) => storeAnswer(e, question, i)}
               checked={answers[currentQuestion]?.includes(i)}
               autoFocus={answers[currentQuestion]?.includes(i) || i === 0}
             ></input>
             <label
               className="text font-medium text-gray-90 ml-2 flex gap-2"
-              htmlFor={`q:${q.id}_a:${i}`}
+              htmlFor={`q:${question.id}_a:${i}`}
               dangerouslySetInnerHTML={{ __html: a ?? "" }}
             ></label>
           </div>

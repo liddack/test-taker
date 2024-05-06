@@ -1,7 +1,6 @@
 "use client";
-import { HomeTests } from "@/components/tests";
 import Link from "next/link";
-import { Suspense, useEffect } from "react";
+import { useEffect } from "react";
 import { readFromLocalStorage } from "./lib/utils/storage";
 import { useRouter } from "next/navigation";
 import { ImportedQuestion } from "@/interfaces/imported-question";

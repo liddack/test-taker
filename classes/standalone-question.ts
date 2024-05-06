@@ -3,7 +3,7 @@ import { getRandomUUID } from "@/utils";
 import { Question } from "@prisma/client";
 import { micromark } from "micromark";
 
-export class StandaloneQuestion implements Question {
+export class StandaloneQuestion {
   constructor({ alternatives, command }: ImportedQuestion) {
     this.id = getRandomUUID();
     this.command = Array.isArray(command) ? command.join("\n") : command;
@@ -18,6 +18,7 @@ export class StandaloneQuestion implements Question {
       return prev;
     }, [] as number[]);
     this.questionSetId = null;
+    this.checkedAlternatives = [];
     this.authorId = null;
   }
 
@@ -25,6 +26,7 @@ export class StandaloneQuestion implements Question {
   command: string | null;
   alternatives: string[];
   answers: number[];
+  checkedAlternatives: number[];
   questionSetId: string | null;
   authorId: string | null;
 }
