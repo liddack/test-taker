@@ -76,7 +76,7 @@ const UploadQuestions = () => {
       return;
     }
 
-    let reader = new FileReader();
+    const reader = new FileReader();
 
     let jsonContent;
     reader.onload = (e: ProgressEvent<FileReader>) => {

@@ -1,6 +1,5 @@
 import { ImportedQuestion } from "@/interfaces/imported-question";
 import { getRandomUUID } from "@/utils";
-import { Question } from "@prisma/client";
 import { micromark } from "micromark";
 
 export class StandaloneQuestion {

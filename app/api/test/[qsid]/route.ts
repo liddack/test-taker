@@ -1,5 +1,4 @@
 import { prisma } from "@/db";
-import { Question } from "@prisma/client";
 import { NextResponse } from "next/server";
 
 // export type ObfuscatedQuestion = Omit<Question, "answers"> & {

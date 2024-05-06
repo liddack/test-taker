@@ -1,7 +1,7 @@
 "use client";
 
 import { Menu, Transition } from "@headlessui/react";
-import { Fragment, MouseEventHandler, useContext, useRef, useState } from "react";
+import { Fragment, MouseEventHandler, useContext } from "react";
 import { ChevronDownIcon } from "@heroicons/react/20/solid";
 import { ShowCorrectAlternativesContext } from "@/contexts/show-correct-alternatives";
 
@@ -33,11 +33,7 @@ export default function OptionsDropdown() {
       >
         <Menu.Items className="absolute right-0 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black/5 focus:outline-none">
           <div className="px-1 py-1 ">
-            <Menu.Item
-              as="span"
-              className={"select-none"}
-              onClick={checkboxClicked}
-            >
+            <Menu.Item as="span" className={"select-none"} onClick={checkboxClicked}>
               {({ active }) => (
                 <label
                   className={`${

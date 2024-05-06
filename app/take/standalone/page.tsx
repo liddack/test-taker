@@ -3,11 +3,8 @@
 import ExamResult from "@/components/exam-result";
 import StandaloneExam from "@/components/standalone-exam";
 import { db } from "@/db/db.model";
-import { ImportedQuestion } from "@/interfaces/imported-question";
-import { Question } from "@prisma/client";
 import { useLiveQuery } from "dexie-react-hooks";
-import { useRouter } from "next/navigation";
-import { ReactNode, useEffect, useState } from "react";
+import { ReactNode, useState } from "react";
 
 function TakeStandalone() {
   const questions = useLiveQuery(() => db.questions.toArray()) ?? [];

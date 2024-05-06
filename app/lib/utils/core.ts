@@ -29,10 +29,10 @@ export const getPercentFromTotal = (count: number, total: number) =>
  * @return A shuffled copy of the original array.
  */
 function shuffleArray<T>(array: T[]): T[] {
-  let copy = [...array];
-  for (var i = copy.length - 1; i > 0; i--) {
-    var j = Math.floor(Math.random() * (i + 1));
-    var temp = copy[i];
+  const copy = [...array];
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const temp = copy[i];
     copy[i] = copy[j];
     copy[j] = temp;
   }
