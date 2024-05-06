@@ -2,7 +2,7 @@ import { useEffect, Dispatch, SetStateAction } from "react";
 
 type UseKeyboardNavigationExamOptions = {
   currentQuestion: number;
-  setCurrentQuestion: Dispatch<SetStateAction<number>>;
+  setCurrentQuestion: (value: number) => void;
   totalQuestions: number;
   setShowResultsPage: Dispatch<SetStateAction<boolean>>;
   setIsKeyboardCapable: Dispatch<SetStateAction<boolean>>;
@@ -17,7 +17,7 @@ export function useKeyboardNavigationExam({
 }: UseKeyboardNavigationExamOptions) {
   useEffect(() => {
     const isTouchDevice = () => "ontouchstart" in window || "onmsgesturechange" in window;
-    var isDesktop = window.screenX != 0 && !isTouchDevice() ? true : false;
+    const isDesktop = window.screenX != 0 && !isTouchDevice() ? true : false;
     setIsKeyboardCapable(isDesktop);
     const handleKeyDown = (e: KeyboardEvent) => {
       setIsKeyboardCapable(true);

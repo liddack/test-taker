@@ -23,7 +23,7 @@ type StandaloneExamProps = {
   answers: number[][];
   setAnswers: (id: string, answer: number[]) => void;
   currentQuestion: number;
-  setCurrentQuestion: Dispatch<SetStateAction<number>>;
+  setCurrentQuestion: (value: number) => void;
 };
 
 export default function StandaloneExam({

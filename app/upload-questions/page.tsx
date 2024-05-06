@@ -6,7 +6,7 @@ import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { prism } from "react-syntax-highlighter/dist/esm/styles/prism";
 // import { saveOnLocalStorage } from "../lib/utils/storage";
 import { useRouter } from "next/navigation";
-import { db } from "@/db/db.model";
+import { AppSetting, db } from "@/db/db.model";
 import { StandaloneQuestion } from "@/classes/standalone-question";
 import { shuffleQuestions } from "../lib/utils/core";
 
@@ -45,6 +45,7 @@ const stringfiedQuestions = JSON.stringify(exampleQuestions, null, 2);
 async function clearQuestions() {
   try {
     await db.questions.clear();
+    await db.settings.update(AppSetting.CurrentQuestion, { value: 0 });
   } catch (error) {
     console.error(`Failed to clear questions: ${error}`);
   }
