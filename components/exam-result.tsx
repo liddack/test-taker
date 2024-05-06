@@ -26,8 +26,8 @@ export default function ExamResult({
   setShowResultsPage,
 }: ExamResultProps) {
   const showAnsweredOnly =
-    useLiveQuery(() => db.settings.get(AppSetting.ShowAnsweredQuestionsOnly))?.value ??
-    false;
+    (useLiveQuery(() => db.settings.get(AppSetting.ShowAnsweredQuestionsOnly))
+      ?.value as boolean) ?? false;
   const setShowAnsweredOnly = (value: boolean) =>
     db.settings.update(AppSetting.ShowAnsweredQuestionsOnly, { value });
   const isKeyboardCapable = useKeyboardNavigationResults({
