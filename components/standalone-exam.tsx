@@ -20,7 +20,7 @@ import { ShowCorrectAlternativesContext } from "@/contexts/show-correct-alternat
 type StandaloneExamProps = {
   questions: Question[];
   setShowResultsPage: Dispatch<SetStateAction<boolean>>;
-  answers: number[][];
+  answers: number[][] | undefined;
   setAnswers: (id: string, answer: number[]) => void;
   currentQuestion: number;
   setCurrentQuestion: (value: number) => void;
@@ -68,6 +68,7 @@ export default function StandaloneExam({
 
   const storeAnswer = useCallback(
     (e: ChangeEvent<HTMLInputElement>, question: StandaloneQuestion, index: number) => {
+      if (!answers) return;
       const answersCp = [...answers];
       let markedAlternatives = answersCp[currentQuestion];
       if (question.answers.length > 1) {
@@ -82,12 +83,12 @@ export default function StandaloneExam({
         markedAlternatives = [index];
       }
       setCheckedAlternatives(question.id, markedAlternatives);
-      console.log(answersCp);
+      console.debug(answersCp);
     },
     [answers, currentQuestion, setCheckedAlternatives]
   );
 
-  if (!questions.length) return <Main>Carregando teste...</Main>;
+  if (!questions.length) return <Main>Carregando questões...</Main>;
   return (
     <div className="flex flex-col lg:w-[60rem]">
       <div className="flex justify-end">
@@ -112,8 +113,8 @@ export default function StandaloneExam({
               data-index={i}
               id={`q:${question.id}_a:${i}`}
               onChange={(e) => storeAnswer(e, question, i)}
-              checked={answers[currentQuestion]?.includes(i)}
-              autoFocus={answers[currentQuestion]?.includes(i) || i === 0}
+              checked={answers?.[currentQuestion]?.includes(i)}
+              autoFocus={answers?.[currentQuestion]?.includes(i) || i === 0}
             ></input>
             <label
               className="text font-medium text-gray-90 ml-2 flex gap-2"

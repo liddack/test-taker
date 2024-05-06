@@ -4,10 +4,11 @@ import ExamResult from "@/components/exam-result";
 import StandaloneExam from "@/components/standalone-exam";
 import { AppSetting, db } from "@/db/db.model";
 import { useLiveQuery } from "dexie-react-hooks";
+import { useRouter } from "next/navigation";
 import { ReactNode, useState } from "react";
 
 function TakeStandalone() {
-  const questions = useLiveQuery(() => db.questions.toArray()) ?? [];
+  const questions = useLiveQuery(() => db.questions.toArray());
   const currentQuestion =
     useLiveQuery(() => db.settings.get(AppSetting.CurrentQuestion))?.value ?? 0;
   const setCurrentQuestion = (value: number) =>
@@ -18,11 +19,16 @@ function TakeStandalone() {
     db.questions.update(id, { checkedAlternatives: answer });
   };
 
+  const router = useRouter();
+  if (questions !== undefined && questions.length === 0) {
+    router.push("/upload-questions");
+  }
+
   const Main = ({ children }: { children: ReactNode }) => (
     <main className="flex-start grow flex flex-col justify-center">{children}</main>
   );
 
-  if (!questions?.length) return <Main>Carregando questões...</Main>;
+  if (questions === undefined) return <Main>Carregando questões...</Main>;
   return (
     <Main>
       {!showResultsPage ? (

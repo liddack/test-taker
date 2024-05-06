@@ -70,8 +70,6 @@ const UploadQuestions = () => {
     const file = event.target.files?.[0];
     const fileName = file?.name || "";
 
-    //   console.log();
-
     if (!file) {
       console.log("Please select the file.");
       return;

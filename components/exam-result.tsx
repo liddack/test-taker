@@ -10,7 +10,7 @@ import { useLiveQuery } from "dexie-react-hooks";
 type ExamResultProps = {
   questions: StandaloneQuestion[];
   setShowResultsPage: Dispatch<SetStateAction<boolean>>;
-  userAnswers: number[][];
+  userAnswers: number[][] | undefined;
 };
 
 const buttonStyle = `px-3 py-2 mr-2 bg-slate-700 text-white rounded cursor-pointer hover:bg-slate-600 disabled:text-slate-300 disabled:bg-slate-500`;
@@ -36,6 +36,8 @@ export default function ExamResult({
     setShowResultsPage,
   });
   useSyntaxHighlighting();
+
+  answers ??= [];
 
   const correctAnswers = getCorrectAnswers(answers, questions);
   const answeredCount = answers.filter((answer) => answer.length > 0).length;

@@ -19,9 +19,8 @@ export default function Home() {
 
   return (
     <main className="flex-start grow flex flex-col justify-center text-center">
-      <h1 className="text-xl font-bold">Questionários</h1>
       <div className="relative flex place-items-center flex-col pt-4">
-        Verificando questões...
+        Carregando questões...
       </div>
     </main>
   );
