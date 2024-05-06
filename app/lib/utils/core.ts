@@ -1,3 +1,4 @@
+import * as cryptoServer from "crypto";
 import { StandaloneQuestion } from "@/classes/standalone-question";
 import { ImportedQuestion } from "@/interfaces/imported-question";
 
@@ -48,4 +49,21 @@ export function shuffleQuestions(questions: ImportedQuestion[]): ImportedQuestio
   return shuffleArray(questions).map((q) => {
     return { ...q, alternatives: shuffleArray(q.alternatives) };
   });
+}
+
+/**
+ * Returns a random UUID string.
+ *
+ * If the environment is a browser, this function uses the `crypto.randomUUID()` method,
+ * which is supported by most modern browsers. If the environment is Node.js, this function
+ * uses the `crypto.randomBytes()` method to generate a random 16-byte buffer, and then
+ * encodes the buffer into a hexadecimal string.
+ *
+ * @returns A random UUID string.
+ */
+export function getRandomUUID() {
+  if (typeof window === "undefined") {
+    return cryptoServer.randomBytes(16).toString("hex");
+  }
+  return crypto.randomUUID();
 }

@@ -1,5 +1,5 @@
+import { getRandomUUID } from "@/app/lib/utils/core";
 import { ImportedQuestion } from "@/interfaces/imported-question";
-import { getRandomUUID } from "@/utils";
 import { micromark } from "micromark";
 
 export class StandaloneQuestion {
