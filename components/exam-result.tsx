@@ -10,7 +10,8 @@ type ExamResultProps = {
   setShowResultsPage: Dispatch<SetStateAction<boolean>>;
 };
 
-const buttonStyle = `px-3 py-2 mr-2 bg-slate-700 text-white rounded cursor-pointer hover:bg-slate-600 disabled:text-slate-300 disabled:bg-slate-500`;
+const buttonStyle = `px-3 py-2 mr-2 text-white rounded cursor-pointer  disabled:text-slate-300 disabled:bg-slate-500`;
+const buttonColors = `bg-slate-700 hover:bg-slate-600`;
 const containsAll = (arr1: number[], arr2: number[]) =>
   arr2?.every((arr2Item) => arr1?.includes(arr2Item));
 
@@ -23,11 +24,6 @@ export default function ExamResult({ setShowResultsPage }: ExamResultProps) {
       ?.value as boolean) ?? false;
   const setShowAnsweredOnly = (value: boolean) =>
     db.settings.update(AppSetting.ShowAnsweredQuestionsOnly, { value });
-  const isKeyboardCapable = useKeyboardNavigationResults({
-    setShowAnsweredOnly,
-    showAnsweredOnly,
-    setShowResultsPage,
-  });
   useSyntaxHighlighting();
 
   let questions = useLiveQuery(() => db.questions.toArray());
@@ -63,6 +59,13 @@ export default function ExamResult({ setShowResultsPage }: ExamResultProps) {
     setShowResultsPage(false);
   };
 
+  const isKeyboardCapable = useKeyboardNavigationResults({
+    setShowAnsweredOnly,
+    showAnsweredOnly,
+    setShowResultsPage,
+    clearAnswers,
+  });
+
   return (
     <>
       <h1 className="text-6xl text-center font-bold mb-4">
@@ -72,7 +75,7 @@ export default function ExamResult({ setShowResultsPage }: ExamResultProps) {
         Você acertou {correctAnswers.length} de um total de {questions.length} questões
       </h2>
       {answeredCount !== questions.length && (
-        <div className="flex flex-col justify-center items-center  py-2">
+        <div className="flex flex-col justify-center items-center py-2">
           <strong>Resultado parcial: </strong>
           <p>{getPercentFromTotal(correctAnswers.length, answeredCount)}%</p>
           <p>
@@ -81,14 +84,17 @@ export default function ExamResult({ setShowResultsPage }: ExamResultProps) {
         </div>
       )}
       <p className="justify-center mb-6 flex gap-2">
-        <button className={buttonStyle} onClick={() => setShowResultsPage(false)}>
-          Voltar {isKeyboardCapable && <Kbd>Esc</Kbd>}
-        </button>
         <button
-          className={buttonStyle + ` bg-rose-900 hover:bg-rose-800`}
+          className={buttonStyle + ` bg-rose-950 hover:bg-rose-900`}
           onClick={() => clearAnswers()}
         >
           Limpar respostas marcadas {isKeyboardCapable && <Kbd>Del</Kbd>}
+        </button>
+        <button
+          className={`${buttonStyle} ${buttonColors}`}
+          onClick={() => setShowResultsPage(false)}
+        >
+          Voltar {isKeyboardCapable && <Kbd>Esc</Kbd>}
         </button>
       </p>
       <h2 className="font-bold text-2xl mb-3 text-center">Resultados</h2>
