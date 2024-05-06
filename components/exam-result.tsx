@@ -55,6 +55,14 @@ export default function ExamResult({ setShowResultsPage }: ExamResultProps) {
 
   const results = getResults();
 
+  const clearAnswers = () => {
+    const clearedAnswers = questions.map((q) => ({ ...q, checkedAlternatives: [] }));
+    db.questions.clear();
+    db.questions.bulkAdd(clearedAnswers);
+    db.settings.update(AppSetting.CurrentQuestion, { value: 0 });
+    setShowResultsPage(false);
+  };
+
   return (
     <>
       <h1 className="text-6xl text-center font-bold mb-4">
@@ -72,9 +80,15 @@ export default function ExamResult({ setShowResultsPage }: ExamResultProps) {
           </p>
         </div>
       )}
-      <p className="text-center mb-6">
+      <p className="justify-center mb-6 flex gap-2">
         <button className={buttonStyle} onClick={() => setShowResultsPage(false)}>
           Voltar {isKeyboardCapable && <Kbd>Esc</Kbd>}
+        </button>
+        <button
+          className={buttonStyle + ` bg-rose-900 hover:bg-rose-800`}
+          onClick={() => clearAnswers()}
+        >
+          Limpar respostas marcadas {isKeyboardCapable && <Kbd>Del</Kbd>}
         </button>
       </p>
       <h2 className="font-bold text-2xl mb-3 text-center">Resultados</h2>
@@ -87,7 +101,7 @@ export default function ExamResult({ setShowResultsPage }: ExamResultProps) {
             onClick={handleShowAnsweredOnly}
           />
           Mostrar apenas questões respondidas &nbsp;
-          {isKeyboardCapable && <Kbd>Q</Kbd>}
+          {isKeyboardCapable && <Kbd className="bg-slate-700 bg-opacity-70">Q</Kbd>}
         </label>
       </p>
       {isLoading && <p className="text-center mt-10">Carregando resultados...</p>}
