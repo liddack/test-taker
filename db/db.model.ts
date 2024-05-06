@@ -8,7 +8,7 @@ export interface AppSettings {
 
 export enum AppSetting {
   ShowCorrectAlternatives = "showCorrectAlternatives",
-  ShowCorrectAnswersOnly = "showCorrectAnswersOnly",
+  ShowAnsweredQuestionsOnly = "showAnsweredQuestionsOnly",
   CurrentQuestion = "currentQuestion",
 }
 
@@ -27,7 +27,7 @@ export class DB extends Dexie {
       await tx.table("settings").bulkAdd([
         { name: AppSetting.CurrentQuestion, value: 0 },
         { name: AppSetting.ShowCorrectAlternatives, value: true },
-        { name: AppSetting.ShowCorrectAnswersOnly, value: false },
+        { name: AppSetting.ShowAnsweredQuestionsOnly, value: false },
       ]);
     });
   }

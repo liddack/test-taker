@@ -2,18 +2,19 @@ import { useEffect, Dispatch, SetStateAction, useState } from "react";
 
 type UseKeyboardNavigationExamOptions = {
   setShowResultsPage: Dispatch<SetStateAction<boolean>>;
-  setShowAnsweredOnly: Dispatch<SetStateAction<boolean>>;
+  showAnsweredOnly: boolean;
+  setShowAnsweredOnly: (value: boolean) => void;
 };
 
 export function useKeyboardNavigationResults({
   setShowResultsPage,
+  showAnsweredOnly,
   setShowAnsweredOnly: setShowOnlyAnsweredQuestions,
 }: UseKeyboardNavigationExamOptions) {
   const [isKeyboardCapable, setIsKeyboardCapable] = useState(true);
   useEffect(() => {
-    const isTouchDevice = () =>
-      "ontouchstart" in window || "onmsgesturechange" in window;
-    var isDesktop = window.screenX != 0 && !isTouchDevice() ? true : false;
+    const isTouchDevice = () => "ontouchstart" in window || "onmsgesturechange" in window;
+    const isDesktop = window.screenX != 0 && !isTouchDevice() ? true : false;
     setIsKeyboardCapable(isDesktop);
     const handleKeyDown = (e: KeyboardEvent) => {
       setIsKeyboardCapable(true);
@@ -25,7 +26,7 @@ export function useKeyboardNavigationResults({
           break;
         case "q":
           e.preventDefault();
-          setShowOnlyAnsweredQuestions((value) => !value);
+          setShowOnlyAnsweredQuestions(!showAnsweredOnly);
           break;
         default:
           break;
@@ -35,6 +36,6 @@ export function useKeyboardNavigationResults({
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [setShowResultsPage, setShowOnlyAnsweredQuestions]);
+  }, [setShowResultsPage, setShowOnlyAnsweredQuestions, showAnsweredOnly]);
   return isKeyboardCapable;
 }

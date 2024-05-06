@@ -2,8 +2,10 @@ import { getCorrectAnswers, getPercentFromTotal } from "@/app/lib/utils/core";
 import { StandaloneQuestion } from "@/classes/standalone-question";
 import { useKeyboardNavigationResults } from "@/hooks/use-keyboard-navigation-results";
 import { useSyntaxHighlighting } from "@/hooks/use-syntax-highlighting";
-import { Dispatch, Fragment, SetStateAction, useCallback, useState } from "react";
+import { Dispatch, Fragment, SetStateAction, useCallback } from "react";
 import { Kbd } from "./kbd";
+import { AppSetting, db } from "@/db/db.model";
+import { useLiveQuery } from "dexie-react-hooks";
 
 type ExamResultProps = {
   questions: StandaloneQuestion[];
@@ -23,15 +25,21 @@ export default function ExamResult({
   userAnswers: answers,
   setShowResultsPage,
 }: ExamResultProps) {
-  const [showAnsweredOnly, setShowAnsweredOnly] = useState(false);
+  const showAnsweredOnly =
+    useLiveQuery(() => db.settings.get(AppSetting.ShowAnsweredQuestionsOnly))?.value ??
+    false;
+  const setShowAnsweredOnly = (value: boolean) =>
+    db.settings.update(AppSetting.ShowAnsweredQuestionsOnly, { value });
   const isKeyboardCapable = useKeyboardNavigationResults({
     setShowAnsweredOnly,
+    showAnsweredOnly,
     setShowResultsPage,
   });
   useSyntaxHighlighting();
 
   const correctAnswers = getCorrectAnswers(answers, questions);
   const answeredCount = answers.filter((answer) => answer.length > 0).length;
+  const handleShowAnsweredOnly = () => setShowAnsweredOnly(!showAnsweredOnly);
 
   console.debug("correctAnswers.length", correctAnswers.length);
   console.debug("answeredCount", answeredCount);
@@ -83,10 +91,10 @@ export default function ExamResult({
       <p>
         <label className="flex text-sm font-medium text-slate-700">
           <input
-            type="checkbox"
             className="mr-1"
+            type="checkbox"
             checked={showAnsweredOnly}
-            onClick={() => setShowAnsweredOnly(!showAnsweredOnly)}
+            onClick={handleShowAnsweredOnly}
           />
           Mostrar apenas questões respondidas &nbsp;
           {isKeyboardCapable && <Kbd>Q</Kbd>}
@@ -131,12 +139,7 @@ export default function ExamResult({
                       }`}
                     >
                       <label className={`flex items-center`}>
-                        <input
-                          type={type}
-                          readOnly
-                          checked={wasChosen}
-                          onClick={() => {}}
-                        />
+                        <input type={type} onChange={() => {}} checked={wasChosen} />
                         <span
                           className="ml-1"
                           dangerouslySetInnerHTML={{ __html: alt }}
