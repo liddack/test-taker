@@ -4,8 +4,11 @@ import { ImportedQuestion } from "@/interfaces/imported-question";
 import { ChangeEvent, useRef, useState } from "react";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { prism } from "react-syntax-highlighter/dist/esm/styles/prism";
-import { saveOnLocalStorage } from "../lib/utils/storage";
+// import { saveOnLocalStorage } from "../lib/utils/storage";
 import { useRouter } from "next/navigation";
+import { AppSetting, db } from "@/db/db.model";
+import { StandaloneQuestion } from "@/classes/standalone-question";
+import { shuffleQuestions } from "../lib/utils/core";
 
 const exampleQuestions: ImportedQuestion[] = [
   {
@@ -39,6 +42,25 @@ const exampleQuestions: ImportedQuestion[] = [
 
 const stringfiedQuestions = JSON.stringify(exampleQuestions, null, 2);
 
+async function clearQuestions() {
+  try {
+    await db.questions.clear();
+    await db.settings.update(AppSetting.CurrentQuestion, { value: 0 });
+  } catch (error) {
+    console.error(`Failed to clear questions: ${error}`);
+  }
+}
+
+async function replaceQuestions(questions: StandaloneQuestion[]) {
+  try {
+    await clearQuestions();
+    await db.questions.bulkAdd(questions);
+    return true;
+  } catch (error) {
+    console.error(`Failed to replace questions: ${error}`);
+  }
+}
+
 const UploadQuestions = () => {
   const [selectedFileName, setSelectedFileName] = useState<string>("");
   const router = useRouter();
@@ -48,24 +70,25 @@ const UploadQuestions = () => {
     const file = event.target.files?.[0];
     const fileName = file?.name || "";
 
-    //   console.log();
-
     if (!file) {
       console.log("Please select the file.");
       return;
     }
 
-    let reader = new FileReader();
+    const reader = new FileReader();
 
     let jsonContent;
     reader.onload = (e: ProgressEvent<FileReader>) => {
       const content = e.target?.result as string;
       try {
-        jsonContent = JSON.parse(content);
+        jsonContent = JSON.parse(content) as ImportedQuestion[];
 
         setSelectedFileName(fileName);
-        saveOnLocalStorage("questionsData", jsonContent);
-        // router.push("/take/standalone");
+        const shuffledQuestions = shuffleQuestions(jsonContent);
+        const standaloneQuestions = shuffledQuestions.map(
+          (q) => new StandaloneQuestion(q)
+        );
+        replaceQuestions(standaloneQuestions);
       } catch (error) {
         console.log("error when loading file: ", error);
         alert("Erro ao carregar arquivo! :(");
@@ -77,7 +100,8 @@ const UploadQuestions = () => {
 
   const handleRemoveFile = () => {
     setSelectedFileName("");
-    localStorage.removeItem("questionsData");
+    clearQuestions();
+    // localStorage.removeItem("questionsData");
 
     const inputElement: any = inputRef.current;
 
@@ -112,10 +136,8 @@ const UploadQuestions = () => {
           </svg>
           <p className="my-3 text-gray-700 max-w-xs mx-full">
             Clique para{" "}
-            <span className="font-medium text-indigo-600">
-              Enviar um arquivo
-            </span>{" "}
-            com as questões do simulado
+            <span className="font-medium text-indigo-600">Enviar um arquivo</span> com as
+            questões do simulado
           </p>
           {selectedFileName && (
             <>
@@ -141,24 +163,19 @@ const UploadQuestions = () => {
           </div>
           <span>O arquivo json deve respeitar o seguinte formato:</span>
           <div className="flex w-full text-xs max-h-[26rem] overflow-auto">
-            <SyntaxHighlighter
-              className="w-full rounded"
-              language="json"
-              style={prism}
-            >
+            <SyntaxHighlighter className="w-full rounded" language="json" style={prism}>
               {stringfiedQuestions}
             </SyntaxHighlighter>
           </div>
           <br />
           <p>
-            Para adicionar um bloco de código ao comando de uma questão,
-            transforme-o em um <em>array</em> e adicione cada linha como um
-            elemento do mesmo.
+            Para adicionar um bloco de código ao comando de uma questão, transforme-o em
+            um <em>array</em> e adicione cada linha como um elemento do mesmo.
           </p>
           <p>
             Em seguida, delimite o bloco de código usando os caracteres{" "}
-            <code className="font-bold bg-slate-300 rounded p-1">```</code>{" "}
-            (três crases), como na <em>segunda questão</em> do exemplo acima.
+            <code className="font-bold bg-slate-300 rounded p-1">```</code> (três crases),
+            como na <em>segunda questão</em> do exemplo acima.
           </p>
           <p className="mt-2">
             <strong>💡 Dica:</strong> use{" "}
@@ -176,7 +193,9 @@ const UploadQuestions = () => {
               className="text-indigo-600 hover:underline"
               target="_blank"
               href="https://github.com/liddack/test-taker/assets/8820502/5f205736-a48f-425d-a043-1bc380f4590c"
-            >🎬 Aqui está um vídeo demonstrando a ferramenta.</a>
+            >
+              🎬 Aqui está um vídeo demonstrando a ferramenta.
+            </a>
           </p>
         </div>
       ) : (

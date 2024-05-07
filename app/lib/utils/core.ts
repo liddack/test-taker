@@ -1,4 +1,6 @@
+import * as cryptoServer from "crypto";
 import { StandaloneQuestion } from "@/classes/standalone-question";
+import { ImportedQuestion } from "@/interfaces/imported-question";
 
 const containsAll = (arr1: number[], arr2: number[]) =>
   arr2?.every((arr2Item) => arr1?.includes(arr2Item));
@@ -6,10 +8,8 @@ const containsAll = (arr1: number[], arr2: number[]) =>
 const sameMembers = (arr1: number[], arr2: number[]) =>
   containsAll(arr1, arr2) && containsAll(arr2, arr1);
 
-export const getCorrectAnswers = (
-  userAnswers: number[][],
-  questions: StandaloneQuestion[]
-) => {
+export const getCorrectAnswers = (questions: StandaloneQuestion[]) => {
+  const userAnswers = questions.map((q) => q.checkedAlternatives);
   const correctAnswers = userAnswers?.filter((answer, index) => {
     const questionAnswers = questions[index]?.answers;
 
@@ -21,3 +21,47 @@ export const getCorrectAnswers = (
 
 export const getPercentFromTotal = (count: number, total: number) =>
   total === 0 ? 0 : Math.round((count / total) * 100);
+
+/**
+ * Return a shuffled copy of the input array.
+ * @param array Input array
+ * @return A shuffled copy of the original array.
+ */
+function shuffleArray<T>(array: T[]): T[] {
+  const copy = [...array];
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const temp = copy[i];
+    copy[i] = copy[j];
+    copy[j] = temp;
+  }
+  return copy;
+}
+
+/**
+ * Shuffles the order of the questions in the given array.
+ * @param questions Array of questions to shuffle.
+ * @returns A new array with the questions in a random order.
+ */
+export function shuffleQuestions(questions: ImportedQuestion[]): ImportedQuestion[] {
+  return shuffleArray(questions).map((q) => {
+    return { ...q, alternatives: shuffleArray(q.alternatives) };
+  });
+}
+
+/**
+ * Returns a random UUID string.
+ *
+ * If the environment is a browser, this function uses the `crypto.randomUUID()` method,
+ * which is supported by most modern browsers. If the environment is Node.js, this function
+ * uses the `crypto.randomBytes()` method to generate a random 16-byte buffer, and then
+ * encodes the buffer into a hexadecimal string.
+ *
+ * @returns A random UUID string.
+ */
+export function getRandomUUID() {
+  if (typeof window === "undefined") {
+    return cryptoServer.randomBytes(16).toString("hex");
+  }
+  return crypto.randomUUID();
+}

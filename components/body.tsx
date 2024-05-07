@@ -2,28 +2,22 @@
 import Link from "next/link";
 import OptionsDropdown from "./options-dropdown";
 import { Inter } from "next/font/google";
-import { useEffect, useState } from "react";
 import { ShowCorrectAlternativesContext } from "@/contexts/show-correct-alternatives";
-import { readFromLocalStorage, saveOnLocalStorage } from "@/app/lib/utils/storage";
+import { useLiveQuery } from "dexie-react-hooks";
+import { AppSetting, db } from "@/db/db.model";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export default function Body({ children }: { children: React.ReactNode }) {
-  const [showCorrectAlternatives, setShowCorrectAlternatives] = useState(true);
-  const handleShowCorrectAlternatives = (value: boolean) => {
-    saveOnLocalStorage("showCorrectAlternatives", value);
-    setShowCorrectAlternatives(value);
-  };
-  useEffect(() => {
-    const storedShowCorrectAlternatives = Boolean(
-      readFromLocalStorage("showCorrectAlternatives", true)
-    );
-    setShowCorrectAlternatives(storedShowCorrectAlternatives);
-  }, []);
+  const showCorrectAlternatives = useLiveQuery(() =>
+    db.settings.get(AppSetting.ShowCorrectAlternatives)
+  )?.value as boolean;
+  const setShowCorrectAlternatives = (value: boolean) =>
+    db.settings.update(AppSetting.ShowCorrectAlternatives, { value: value });
   return (
     <body className={inter.className}>
       <ShowCorrectAlternativesContext.Provider
-        value={[showCorrectAlternatives, handleShowCorrectAlternatives]}
+        value={[showCorrectAlternatives, setShowCorrectAlternatives]}
       >
         <div className={`p-10 min-h-screen flex flex-col items-center`}>
           <nav className="flex sm:justify-between justify-center flex-wrap self-start w-full gap-x-32">
@@ -42,9 +36,6 @@ export default function Body({ children }: { children: React.ReactNode }) {
                 </li>
               </ul>
             </nav>
-            {/* <Link href={"/"}>
-          <span className="underline">Login</span>
-        </Link> */}
           </nav>
           <>{children}</>
         </div>

@@ -1,61 +1,70 @@
 import { getCorrectAnswers, getPercentFromTotal } from "@/app/lib/utils/core";
-import { StandaloneQuestion } from "@/classes/standalone-question";
 import { useKeyboardNavigationResults } from "@/hooks/use-keyboard-navigation-results";
 import { useSyntaxHighlighting } from "@/hooks/use-syntax-highlighting";
-import { Dispatch, Fragment, SetStateAction, useCallback, useState } from "react";
+import { Dispatch, Fragment, SetStateAction, useCallback } from "react";
 import { Kbd } from "./kbd";
+import { AppSetting, db } from "@/db/db.model";
+import { useLiveQuery } from "dexie-react-hooks";
 
 type ExamResultProps = {
-  questions: StandaloneQuestion[];
   setShowResultsPage: Dispatch<SetStateAction<boolean>>;
-  userAnswers: number[][];
 };
 
-const buttonStyle = `px-3 py-2 mr-2 bg-slate-700 text-white rounded cursor-pointer hover:bg-slate-600 disabled:text-slate-300 disabled:bg-slate-500`;
+const buttonStyle = `px-3 py-2 mr-2 text-white rounded cursor-pointer  disabled:text-slate-300 disabled:bg-slate-500`;
+const buttonColors = `bg-slate-700 hover:bg-slate-600`;
 const containsAll = (arr1: number[], arr2: number[]) =>
   arr2?.every((arr2Item) => arr1?.includes(arr2Item));
 
 const sameMembers = (arr1: number[], arr2: number[]) =>
   containsAll(arr1, arr2) && containsAll(arr2, arr1);
 
-export default function ExamResult({
-  questions,
-  userAnswers: answers,
-  setShowResultsPage,
-}: ExamResultProps) {
-  const [showAnsweredOnly, setShowAnsweredOnly] = useState(false);
-  const isKeyboardCapable = useKeyboardNavigationResults({
-    setShowAnsweredOnly,
-    setShowResultsPage,
-  });
+export default function ExamResult({ setShowResultsPage }: ExamResultProps) {
+  const showAnsweredOnly =
+    (useLiveQuery(() => db.settings.get(AppSetting.ShowAnsweredQuestionsOnly))
+      ?.value as boolean) ?? false;
+  const setShowAnsweredOnly = (value: boolean) =>
+    db.settings.update(AppSetting.ShowAnsweredQuestionsOnly, { value });
   useSyntaxHighlighting();
 
-  const correctAnswers = getCorrectAnswers(answers, questions);
-  const answeredCount = answers.filter((answer) => answer.length > 0).length;
-
-  console.debug("correctAnswers.length", correctAnswers.length);
-  console.debug("answeredCount", answeredCount);
+  let questions = useLiveQuery(() => db.questions.toArray());
+  const isLoading = questions === undefined;
+  questions ??= [];
+  const correctAnswers = getCorrectAnswers(questions);
+  const answeredCount = questions.filter((q) => q.checkedAlternatives.length > 0).length;
+  const handleShowAnsweredOnly = () => setShowAnsweredOnly(!showAnsweredOnly);
 
   const getResults = useCallback(() => {
     if (showAnsweredOnly) {
-      const userAnsweredOnly = answers.filter((a) => a.length > 0);
-      const answeredQuestions = questions.filter((_, i) => answers[i].length > 0);
+      const answeredQuestions = questions.filter((q) => q.checkedAlternatives.length > 0);
       return answeredQuestions.map((question, i) => ({
         question,
-        userAnswer: userAnsweredOnly[i],
         index: i,
-        total: userAnsweredOnly.length,
+        total: answeredCount,
       }));
     }
     return questions.map((question, i) => ({
       question,
-      userAnswer: answers[i],
       index: i,
-      total: answers.length,
+      total: questions.length,
     }));
-  }, [showAnsweredOnly, answers, questions]);
+  }, [showAnsweredOnly, answeredCount, questions]);
 
   const results = getResults();
+
+  const clearAnswers = () => {
+    const clearedAnswers = questions.map((q) => ({ ...q, checkedAlternatives: [] }));
+    db.questions.clear();
+    db.questions.bulkAdd(clearedAnswers);
+    db.settings.update(AppSetting.CurrentQuestion, { value: 0 });
+    setShowResultsPage(false);
+  };
+
+  const isKeyboardCapable = useKeyboardNavigationResults({
+    setShowAnsweredOnly,
+    showAnsweredOnly,
+    setShowResultsPage,
+    clearAnswers,
+  });
 
   return (
     <>
@@ -66,7 +75,7 @@ export default function ExamResult({
         Você acertou {correctAnswers.length} de um total de {questions.length} questões
       </h2>
       {answeredCount !== questions.length && (
-        <div className="flex flex-col justify-center items-center  py-2">
+        <div className="flex flex-col justify-center items-center py-2">
           <strong>Resultado parcial: </strong>
           <p>{getPercentFromTotal(correctAnswers.length, answeredCount)}%</p>
           <p>
@@ -74,8 +83,17 @@ export default function ExamResult({
           </p>
         </div>
       )}
-      <p className="text-center mb-6">
-        <button className={buttonStyle} onClick={() => setShowResultsPage(false)}>
+      <p className="justify-center mb-6 flex gap-2">
+        <button
+          className={buttonStyle + ` bg-rose-950 hover:bg-rose-900`}
+          onClick={() => clearAnswers()}
+        >
+          Limpar respostas marcadas {isKeyboardCapable && <Kbd>Del</Kbd>}
+        </button>
+        <button
+          className={`${buttonStyle} ${buttonColors}`}
+          onClick={() => setShowResultsPage(false)}
+        >
           Voltar {isKeyboardCapable && <Kbd>Esc</Kbd>}
         </button>
       </p>
@@ -83,22 +101,24 @@ export default function ExamResult({
       <p>
         <label className="flex text-sm font-medium text-slate-700">
           <input
-            type="checkbox"
             className="mr-1"
+            type="checkbox"
             checked={showAnsweredOnly}
-            onClick={() => setShowAnsweredOnly(!showAnsweredOnly)}
+            onClick={handleShowAnsweredOnly}
           />
           Mostrar apenas questões respondidas &nbsp;
-          {isKeyboardCapable && <Kbd>Q</Kbd>}
+          {isKeyboardCapable && <Kbd className="bg-slate-700 bg-opacity-70">Q</Kbd>}
         </label>
       </p>
-      {results.length === 0 && (
+      {isLoading && <p className="text-center mt-10">Carregando resultados...</p>}
+      {!isLoading && results.length === 0 && (
         <p className="text-center mt-10 text-slate-500">Nenhuma questão foi respondida</p>
       )}
-      {results.map(({ question, userAnswer, index, total }) => {
-        const isCorrect = sameMembers(question.answers, userAnswer);
+      {results.map(({ question, index, total }) => {
+        const { id, command, answers, checkedAlternatives, alternatives } = question;
+        const isCorrect = sameMembers(answers, checkedAlternatives);
         return (
-          <Fragment key={question.id}>
+          <Fragment key={id}>
             <div className="lg:w-[60rem] border p-4 border-slate-400 my-2 rounded-md">
               <h3
                 className={`flex justify-between items-baseline text-normal text-sm font-semibold mb-2 ${
@@ -109,7 +129,7 @@ export default function ExamResult({
                   <span className="shrink-0">{isCorrect ? "✅" : "❌"}</span>
                   <span
                     className="pl-1 prose text-inherit text-sm prose-pre:bg-white prose-code:text-slate-800"
-                    dangerouslySetInnerHTML={{ __html: question.command ?? "" }}
+                    dangerouslySetInnerHTML={{ __html: command ?? "" }}
                   ></span>
                 </div>
                 <span className="text-slate-400 justify-self-end font-normal text-sm">
@@ -117,10 +137,10 @@ export default function ExamResult({
                 </span>
               </h3>
               <div className="ml-6 my-1">
-                {question.alternatives.map((alt, idx) => {
-                  const wasChosen = userAnswer?.includes(idx);
-                  const isCorrect = question.answers.includes(idx);
-                  const type = question.answers.length > 1 ? "checkbox" : "radio";
+                {alternatives.map((alt, idx) => {
+                  const wasChosen = checkedAlternatives?.includes(idx);
+                  const isCorrect = answers.includes(idx);
+                  const type = answers.length > 1 ? "checkbox" : "radio";
                   return (
                     <div
                       key={idx}
@@ -131,14 +151,9 @@ export default function ExamResult({
                       }`}
                     >
                       <label className={`flex items-center`}>
-                        <input
-                          type={type}
-                          readOnly
-                          checked={wasChosen}
-                          onClick={() => {}}
-                        />
+                        <input type={type} readOnly checked={wasChosen} />
                         <span
-                          className="ml-1"
+                          className="ml-1 select-none"
                           dangerouslySetInnerHTML={{ __html: alt }}
                         ></span>
                       </label>

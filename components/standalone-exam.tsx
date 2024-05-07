@@ -1,6 +1,5 @@
 "use client";
 
-import { Question } from ".prisma/client";
 import { StandaloneQuestion } from "@/classes/standalone-question";
 import {
   ChangeEvent,
@@ -16,43 +15,48 @@ import { useKeyboardNavigationExam } from "@/hooks/use-keyboard-navigation-exam"
 import { useSyntaxHighlighting } from "@/hooks/use-syntax-highlighting";
 import { Kbd } from "./kbd";
 import { ShowCorrectAlternativesContext } from "@/contexts/show-correct-alternatives";
+import { AppSetting, db } from "@/db/db.model";
+import { useLiveQuery } from "dexie-react-hooks";
 
 type StandaloneExamProps = {
-  questions: Question[];
   setShowResultsPage: Dispatch<SetStateAction<boolean>>;
-  answers: number[][];
-  setAnswers: Dispatch<SetStateAction<number[][]>>;
-  currentQuestion: number;
-  setCurrentQuestion: Dispatch<SetStateAction<number>>;
+  questionIds: string[];
 };
 
 export default function StandaloneExam({
-  questions,
-  answers,
-  setAnswers,
-  currentQuestion,
-  setCurrentQuestion,
+  questionIds,
   setShowResultsPage,
 }: StandaloneExamProps) {
   const [showCorrectAlternatives] = useContext(ShowCorrectAlternativesContext);
+  const currentQuestion =
+    useLiveQuery(() => db.settings.get(AppSetting.CurrentQuestion))?.value ?? 0;
+  const setCurrentQuestion = (value: number) =>
+    db.settings.update(AppSetting.CurrentQuestion, { value });
+  const setCheckedAlternatives = useCallback((id: string, answer: number[]) => {
+    db.questions.update(id, { checkedAlternatives: answer });
+  }, []);
   const [isKeyboardCapable, setIsKeyboardCapable] = useState(true);
   useSyntaxHighlighting();
   useKeyboardNavigationExam({
     currentQuestion,
     setCurrentQuestion,
-    totalQuestions: questions.length,
+    totalQuestions: questionIds?.length ?? 0,
     setShowResultsPage,
     setIsKeyboardCapable,
   });
+  const question = useLiveQuery(
+    () => db.questions.get(questionIds[currentQuestion]),
+    [currentQuestion]
+  );
+  console.debug("questionIds[currentQuestion]", questionIds[currentQuestion]);
 
   const Main = ({ children }: { children: ReactNode }) => (
     <main className="flex-start grow flex flex-col justify-center">{children}</main>
   );
   const buttonStyle = `px-3 py-2 mr-2 bg-slate-700 text-white rounded cursor-pointer hover:bg-slate-600 disabled:text-slate-300 disabled:bg-slate-500`;
 
-  const q = questions[currentQuestion],
-    hasPrevious = currentQuestion - 1 >= 0,
-    hasNext = currentQuestion + 1 < questions.length;
+  const hasPrevious = currentQuestion - 1 >= 0;
+  const hasNext = currentQuestion + 1 < questionIds.length;
 
   const questionCount = (count: number) => (
     <>
@@ -68,57 +72,54 @@ export default function StandaloneExam({
 
   const storeAnswer = useCallback(
     (e: ChangeEvent<HTMLInputElement>, question: StandaloneQuestion, index: number) => {
-      const answersCp = [...answers];
+      let markedAlternatives = question.checkedAlternatives;
       if (question.answers.length > 1) {
         // checkbox
         if (e.currentTarget.checked) {
-          answersCp[currentQuestion].push(index);
+          markedAlternatives.push(index);
         } else {
-          answersCp[currentQuestion] = answersCp[currentQuestion].filter(
-            (a) => a != index
-          );
+          markedAlternatives = markedAlternatives.filter((a) => a != index);
         }
       } else {
         // radio
-        answersCp[currentQuestion] = [index];
+        markedAlternatives = [index];
       }
-      setAnswers(answersCp);
-      console.log(answersCp);
+      setCheckedAlternatives(question.id, markedAlternatives);
+      console.debug("Answered: ", markedAlternatives);
     },
-    [answers, currentQuestion, setAnswers]
+    [setCheckedAlternatives]
   );
 
-  if (!questions.length) return <Main>Erro ao buscar teste.</Main>;
+  if (question === undefined) return <Main>Carregando questão...</Main>;
   return (
     <div className="flex flex-col lg:w-[60rem]">
       <div className="flex justify-end">
-        {/* {isKeyboardCapable && <span className="text-red">Entrada de teclado</span>} */}
-        {currentQuestion + 1} de {questions.length}
+        {currentQuestion + 1} de {questionIds.length}
       </div>
       <div
         className="text-xl font-bold mb-1 prose prose-pre:bg-white prose-code:text-sm"
-        dangerouslySetInnerHTML={{ __html: q.command ?? "" }}
+        dangerouslySetInnerHTML={{ __html: question.command ?? "" }}
       ></div>
       {showCorrectAlternatives && (
-        <span className="text-sm">{questionCount(q.answers.length)}</span>
+        <span className="text-sm">{questionCount(question.answers.length)}</span>
       )}
       <div className="relative pt-4">
-        {q.alternatives.map((a, i) => (
+        {question.alternatives.map((a, i) => (
           <div key={i} className="flex mb-3">
             <input
               key={i}
-              type={q.answers.length > 1 ? "checkbox" : "radio"}
+              type={question.answers.length > 1 ? "checkbox" : "radio"}
               className="me-2 h-4 w-4 mt-[0.2rem] border-gray-300 focus:ring-2 focus:ring-blue-300"
-              name={`q:${q.id}`}
+              name={`q:${question.id}`}
               data-index={i}
-              id={`q:${q.id}_a:${i}`}
-              onChange={(e) => storeAnswer(e, q, i)}
-              checked={answers[currentQuestion]?.includes(i)}
-              autoFocus={answers[currentQuestion]?.includes(i) || i === 0}
+              id={`q:${question.id}_a:${i}`}
+              onChange={(e) => storeAnswer(e, question, i)}
+              checked={question.checkedAlternatives?.includes(i)}
+              autoFocus={question.checkedAlternatives?.includes(i) || i === 0}
             ></input>
             <label
               className="text font-medium text-gray-90 ml-2 flex gap-2"
-              htmlFor={`q:${q.id}_a:${i}`}
+              htmlFor={`q:${question.id}_a:${i}`}
               dangerouslySetInnerHTML={{ __html: a ?? "" }}
             ></label>
           </div>
