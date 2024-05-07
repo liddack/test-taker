@@ -5,9 +5,11 @@ import { Dispatch, Fragment, SetStateAction, useCallback } from "react";
 import { Kbd } from "./kbd";
 import { AppSetting, db } from "@/db/db.model";
 import { useLiveQuery } from "dexie-react-hooks";
+import { StandaloneQuestion } from "@/classes/standalone-question";
 
 type ExamResultProps = {
   setShowResultsPage: Dispatch<SetStateAction<boolean>>;
+  resetExam: (questions: StandaloneQuestion[]) => void;
 };
 
 const buttonStyle = `px-3 py-2 mr-2 text-white rounded cursor-pointer  disabled:text-slate-300 disabled:bg-slate-500`;
@@ -18,7 +20,7 @@ const containsAll = (arr1: number[], arr2: number[]) =>
 const sameMembers = (arr1: number[], arr2: number[]) =>
   containsAll(arr1, arr2) && containsAll(arr2, arr1);
 
-export default function ExamResult({ setShowResultsPage }: ExamResultProps) {
+export default function ExamResult({ setShowResultsPage, resetExam }: ExamResultProps) {
   const showAnsweredOnly =
     (useLiveQuery(() => db.settings.get(AppSetting.ShowAnsweredQuestionsOnly))
       ?.value as boolean) ?? false;
@@ -51,19 +53,15 @@ export default function ExamResult({ setShowResultsPage }: ExamResultProps) {
 
   const results = getResults();
 
-  const clearAnswers = () => {
-    const clearedAnswers = questions.map((q) => ({ ...q, checkedAlternatives: [] }));
-    db.questions.clear();
-    db.questions.bulkAdd(clearedAnswers);
-    db.settings.update(AppSetting.CurrentQuestion, { value: 0 });
-    setShowResultsPage(false);
+  const triggerResetExam = () => {
+    resetExam(questions);
   };
 
   const isKeyboardCapable = useKeyboardNavigationResults({
     setShowAnsweredOnly,
     showAnsweredOnly,
     setShowResultsPage,
-    clearAnswers,
+    triggerResetExam,
   });
 
   return (
@@ -86,7 +84,7 @@ export default function ExamResult({ setShowResultsPage }: ExamResultProps) {
       <p className="justify-center mb-6 flex gap-2">
         <button
           className={buttonStyle + ` bg-rose-950 hover:bg-rose-900`}
-          onClick={() => clearAnswers()}
+          onClick={() => triggerResetExam()}
         >
           Limpar respostas marcadas {isKeyboardCapable && <Kbd>Del</Kbd>}
         </button>

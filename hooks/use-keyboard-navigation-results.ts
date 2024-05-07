@@ -4,14 +4,14 @@ type UseKeyboardNavigationExamOptions = {
   setShowResultsPage: Dispatch<SetStateAction<boolean>>;
   showAnsweredOnly: boolean;
   setShowAnsweredOnly: (value: boolean) => void;
-  clearAnswers: () => void;
+  triggerResetExam: () => void;
 };
 
 export function useKeyboardNavigationResults({
   setShowResultsPage,
   showAnsweredOnly,
   setShowAnsweredOnly: setShowOnlyAnsweredQuestions,
-  clearAnswers,
+  triggerResetExam,
 }: UseKeyboardNavigationExamOptions) {
   const [isKeyboardCapable, setIsKeyboardCapable] = useState(true);
   useEffect(() => {
@@ -28,7 +28,7 @@ export function useKeyboardNavigationResults({
           break;
         case "Delete":
           e.preventDefault();
-          clearAnswers();
+          triggerResetExam();
           break;
         case "q":
           e.preventDefault();
@@ -42,6 +42,11 @@ export function useKeyboardNavigationResults({
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [setShowResultsPage, setShowOnlyAnsweredQuestions, showAnsweredOnly, clearAnswers]);
+  }, [
+    setShowResultsPage,
+    setShowOnlyAnsweredQuestions,
+    showAnsweredOnly,
+    triggerResetExam,
+  ]);
   return isKeyboardCapable;
 }

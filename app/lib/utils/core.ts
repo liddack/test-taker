@@ -1,6 +1,5 @@
 import * as cryptoServer from "crypto";
 import { StandaloneQuestion } from "@/classes/standalone-question";
-import { ImportedQuestion } from "@/interfaces/imported-question";
 
 const containsAll = (arr1: number[], arr2: number[]) =>
   arr2?.every((arr2Item) => arr1?.includes(arr2Item));
@@ -27,7 +26,7 @@ export const getPercentFromTotal = (count: number, total: number) =>
  * @param array Input array
  * @return A shuffled copy of the original array.
  */
-function shuffleArray<T>(array: T[]): T[] {
+export function shuffleArray<T>(array: T[]): T[] {
   const copy = [...array];
   for (let i = copy.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
@@ -43,7 +42,7 @@ function shuffleArray<T>(array: T[]): T[] {
  * @param questions Array of questions to shuffle.
  * @returns A new array with the questions in a random order.
  */
-export function shuffleQuestions(questions: ImportedQuestion[]): ImportedQuestion[] {
+export function shuffleQuestions<T>(questions: (T & { alternatives: unknown[] })[]): T[] {
   return shuffleArray(questions).map((q) => {
     return { ...q, alternatives: shuffleArray(q.alternatives) };
   });

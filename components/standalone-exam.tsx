@@ -46,7 +46,7 @@ export default function StandaloneExam({
   });
   const question = useLiveQuery(
     () => db.questions.get(questionIds[currentQuestion]),
-    [currentQuestion]
+    [currentQuestion, questionIds]
   );
   console.debug("questionIds[currentQuestion]", questionIds[currentQuestion]);
 
