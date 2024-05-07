@@ -26,14 +26,21 @@ export function useKeyboardNavigationExam({
       const focusedIndex = Number(focused?.dataset?.index ?? 0);
       switch (e.key) {
         case "ArrowLeft":
-          if (currentQuestion > 0) setCurrentQuestion(currentQuestion - 1);
+          e.preventDefault();
+          if (currentQuestion > 0) {
+            setCurrentQuestion(currentQuestion - 1);
+          }
           break;
         case "ArrowRight":
-          if (currentQuestion < totalQuestions - 1)
+          e.preventDefault();
+          if (currentQuestion < totalQuestions - 1) {
             setCurrentQuestion(currentQuestion + 1);
+          }
           break;
         case "Enter":
-          if (currentQuestion > 0) setShowResultsPage(true);
+          if (currentQuestion > 0) {
+            setShowResultsPage(true);
+          }
           break;
         case "Home":
           setCurrentQuestion(0);
@@ -42,17 +49,24 @@ export function useKeyboardNavigationExam({
           setCurrentQuestion(totalQuestions - 1);
           break;
         case "PageUp":
-          if (currentQuestion > 9) setCurrentQuestion(currentQuestion - 10);
-          else setCurrentQuestion(0);
+          if (currentQuestion > 9) {
+            setCurrentQuestion(currentQuestion - 10);
+          } else {
+            setCurrentQuestion(0);
+          }
           break;
         case "PageDown":
-          if (currentQuestion < totalQuestions - 10)
+          if (currentQuestion < totalQuestions - 10) {
             setCurrentQuestion(currentQuestion + 10);
-          else setCurrentQuestion(totalQuestions - 1);
+          } else {
+            setCurrentQuestion(totalQuestions - 1);
+          }
           break;
         case "ArrowUp":
           e.preventDefault();
-          if (focusedIndex > 0) inputs?.[focusedIndex - 1].focus();
+          if (focusedIndex > 0) {
+            inputs?.[focusedIndex - 1].focus();
+          }
           break;
         case "ArrowDown":
           e.preventDefault();

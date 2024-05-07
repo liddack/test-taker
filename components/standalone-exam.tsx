@@ -85,7 +85,7 @@ export default function StandaloneExam({
         markedAlternatives = [index];
       }
       setCheckedAlternatives(question.id, markedAlternatives);
-      console.debug(markedAlternatives);
+      console.debug("Answered: ", markedAlternatives);
     },
     [setCheckedAlternatives]
   );

@@ -151,9 +151,9 @@ export default function ExamResult({ setShowResultsPage }: ExamResultProps) {
                       }`}
                     >
                       <label className={`flex items-center`}>
-                        <input type={type} onChange={() => {}} checked={wasChosen} />
+                        <input type={type} readOnly checked={wasChosen} />
                         <span
-                          className="ml-1"
+                          className="ml-1 select-none"
                           dangerouslySetInnerHTML={{ __html: alt }}
                         ></span>
                       </label>
