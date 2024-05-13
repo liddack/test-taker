@@ -37,23 +37,25 @@ export class DB extends Dexie {
 const db = new DB();
 
 // Convert pre-hashed alternatives to hashed alternatives.
-db.questions.toArray().then(async (questions) => {
-  if (questions.length && !questions[0].alternatives[0]?.hash) {
-    const hashedQuestions = questions.map((q: any) => {
-      q.alternatives = q.alternatives.map((a: string) => {
-        return { label: a, hash: hashCode(a) };
+if (global?.indexedDB) {
+  db.questions.toArray().then(async (questions) => {
+    if (questions.length && !questions[0].alternatives[0]?.hash) {
+      const hashedQuestions = questions.map((q: any) => {
+        q.alternatives = q.alternatives.map((a: string) => {
+          return { label: a, hash: hashCode(a) };
+        });
+        q.answers = q.answers.map((a: number) => {
+          return q.alternatives[a].hash;
+        });
+        q.checkedAlternatives = q.checkedAlternatives.map((ca: number) => {
+          return q.alternatives[ca].hash;
+        });
+        return q as StandaloneQuestion;
       });
-      q.answers = q.answers.map((a: number) => {
-        return q.alternatives[a].hash;
-      });
-      q.checkedAlternatives = q.checkedAlternatives.map((ca: number) => {
-        return q.alternatives[ca].hash;
-      });
-      return q as StandaloneQuestion;
-    });
-    await db.questions.clear();
-    await db.questions.bulkAdd(hashedQuestions);
-  }
-});
+      await db.questions.clear();
+      await db.questions.bulkAdd(hashedQuestions);
+    }
+  });
+}
 
 export { db }; // export the db
