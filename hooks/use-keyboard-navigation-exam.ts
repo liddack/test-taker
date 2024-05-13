@@ -19,11 +19,11 @@ export function useKeyboardNavigationExam({
     const isTouchDevice = () => "ontouchstart" in window || "onmsgesturechange" in window;
     const isDesktop = window.screenX != 0 && !isTouchDevice() ? true : false;
     setIsKeyboardCapable(isDesktop);
-    const handleKeyDown = (e: KeyboardEvent) => {
+    const handleKeydown = (e: KeyboardEvent) => {
       setIsKeyboardCapable(true);
-      const inputs = document?.querySelectorAll("input");
+      const inputs = Array.from(document?.querySelectorAll("input"));
       const focused = (document?.querySelector("input:focus") as HTMLInputElement) ?? 0;
-      const focusedIndex = Number(focused?.dataset?.index ?? 0);
+      const focusedIndex = inputs.indexOf(focused);
       switch (e.key) {
         case "ArrowLeft":
           e.preventDefault();
@@ -71,7 +71,6 @@ export function useKeyboardNavigationExam({
         case "ArrowDown":
           e.preventDefault();
           if (focusedIndex < inputs.length - 1) {
-            console.debug(inputs[focusedIndex + 1]);
             inputs[focusedIndex + 1]?.focus();
           }
           break;
@@ -79,9 +78,9 @@ export function useKeyboardNavigationExam({
           break;
       }
     };
-    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("keydown", handleKeydown);
     return () => {
-      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("keydown", handleKeydown);
     };
   }, [
     currentQuestion,

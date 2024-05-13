@@ -1,3 +1,4 @@
+import { hashCode } from "@/app/lib/utils/core";
 import { StandaloneQuestion } from "@/classes/standalone-question";
 import Dexie, { Table, Transaction } from "dexie";
 
@@ -18,7 +19,7 @@ export class DB extends Dexie {
   settings!: Table<AppSettings>;
   constructor() {
     super("simuladosDatabase");
-    this.version(1).stores({
+    this.version(11).stores({
       questions:
         "++id, command, alternatives, answers, checkedAlternatives, questionSetId, authorId", // Primary key and indexed props
       settings: "++name, value",
@@ -33,4 +34,26 @@ export class DB extends Dexie {
   }
 }
 
-export const db = new DB(); // export the db
+const db = new DB();
+
+// Convert pre-hashed alternatives to hashed alternatives.
+db.questions.toArray().then(async (questions) => {
+  if (questions.length && !questions[0].alternatives[0]?.hash) {
+    const hashedQuestions = questions.map((q: any) => {
+      q.alternatives = q.alternatives.map((a: string) => {
+        return { label: a, hash: hashCode(a) };
+      });
+      q.answers = q.answers.map((a: number) => {
+        return q.alternatives[a].hash;
+      });
+      q.checkedAlternatives = q.checkedAlternatives.map((ca: number) => {
+        return q.alternatives[ca].hash;
+      });
+      return q as StandaloneQuestion;
+    });
+    await db.questions.clear();
+    await db.questions.bulkAdd(hashedQuestions);
+  }
+});
+
+export { db }; // export the db
