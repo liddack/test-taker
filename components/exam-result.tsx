@@ -149,7 +149,7 @@ export default function ExamResult({ setShowResultsPage, resetExam }: ExamResult
                     >
                       <label
                         className={`flex items-center`}
-                        id={`${question.id}-${alt.label}`}
+                        id={`${question.id}-${alt.hash}`}
                       >
                         <input type={type} readOnly checked={wasChosen} />
                         <span
