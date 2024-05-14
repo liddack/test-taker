@@ -14,10 +14,10 @@ export class StandaloneQuestion {
     this.alternatives = alternatives.map((a) => {
       return { label: a.label, hash: hashCode(a.label) };
     });
-    this.answers = alternatives.reduce((prev, a, i) => {
-      if (a.isCorrect) return [...prev, i];
+    this.answers = alternatives.reduce((prev, a) => {
+      if (a.isCorrect) return [...prev, hashCode(a.label)];
       return prev;
-    }, [] as number[]);
+    }, [] as (number | string)[]);
     this.questionSetId = null;
     this.checkedAlternatives = [];
     this.authorId = null;
