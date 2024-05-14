@@ -1,7 +1,6 @@
 "use client";
 
-import { shuffleQuestions } from "@/app/lib/utils/core";
-import { StandaloneQuestion } from "@/classes/standalone-question";
+import { getRandomUUID, shuffleQuestions } from "@/app/lib/utils/core";
 import ExamResult from "@/components/exam-result";
 import StandaloneExam from "@/components/standalone-exam";
 import { AppSetting, db } from "@/db/db.model";
@@ -24,16 +23,28 @@ function TakeStandalone() {
     getKeys();
   }, []);
 
-  const resetExam = (questions: StandaloneQuestion[]) => {
-    const clearedAnswers = questions.map((q) => ({ ...q, checkedAlternatives: [] }));
-    const shuffledQuestions = shuffleQuestions(clearedAnswers);
-    console.debug(shuffledQuestions);
-    const keys = shuffledQuestions.map((q) => q.id);
-    db.questions.clear();
-    db.questions.bulkAdd(shuffledQuestions);
-    setQuestionIds(keys);
-    db.settings.update(AppSetting.CurrentQuestion, { value: 0 });
-    setShowResultsPage(false);
+  const resetExam = () => {
+    setIsLoading(true);
+    console.log("Resetting questions");
+    db.questions.toArray().then(async (questions) => {
+      const shuffledQuestions = shuffleQuestions(questions);
+      const clearedQuestions = shuffledQuestions.map((q) => ({
+        ...q,
+        checkedAlternatives: [],
+        id: getRandomUUID(),
+      }));
+      console.debug(clearedQuestions);
+      await db.questions.clear();
+      console.debug("Cleared database");
+      await db.questions.bulkAdd(clearedQuestions);
+      await db.settings.update(AppSetting.CurrentQuestion, { value: 0 });
+      const newQuestions = await db.questions.toArray();
+      const keys = newQuestions.map((q) => q.id);
+      setQuestionIds(keys);
+      setShowResultsPage(false);
+      setIsLoading(false);
+      console.log("Questions resetted successfully");
+    });
   };
 
   const router = useRouter();

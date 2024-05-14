@@ -1,24 +1,22 @@
-import { getCorrectAnswers, getPercentFromTotal } from "@/app/lib/utils/core";
+import {
+  getCorrectAnswers,
+  getPercentFromTotal,
+  sameMembers,
+} from "@/app/lib/utils/core";
 import { useKeyboardNavigationResults } from "@/hooks/use-keyboard-navigation-results";
 import { useSyntaxHighlighting } from "@/hooks/use-syntax-highlighting";
 import { Dispatch, Fragment, SetStateAction, useCallback } from "react";
 import { Kbd } from "./kbd";
 import { AppSetting, db } from "@/db/db.model";
 import { useLiveQuery } from "dexie-react-hooks";
-import { StandaloneQuestion } from "@/classes/standalone-question";
 
 type ExamResultProps = {
   setShowResultsPage: Dispatch<SetStateAction<boolean>>;
-  resetExam: (questions: StandaloneQuestion[]) => void;
+  resetExam: () => void;
 };
 
 const buttonStyle = `px-3 py-2 mr-2 text-white rounded cursor-pointer  disabled:text-slate-300 disabled:bg-slate-500`;
 const buttonColors = `bg-slate-700 hover:bg-slate-600`;
-const containsAll = (arr1: number[], arr2: number[]) =>
-  arr2?.every((arr2Item) => arr1?.includes(arr2Item));
-
-const sameMembers = (arr1: number[], arr2: number[]) =>
-  containsAll(arr1, arr2) && containsAll(arr2, arr1);
 
 export default function ExamResult({ setShowResultsPage, resetExam }: ExamResultProps) {
   const showAnsweredOnly =
@@ -53,15 +51,11 @@ export default function ExamResult({ setShowResultsPage, resetExam }: ExamResult
 
   const results = getResults();
 
-  const triggerResetExam = () => {
-    resetExam(questions);
-  };
-
   const isKeyboardCapable = useKeyboardNavigationResults({
     setShowAnsweredOnly,
     showAnsweredOnly,
     setShowResultsPage,
-    triggerResetExam,
+    resetExam,
   });
 
   return (
@@ -84,7 +78,7 @@ export default function ExamResult({ setShowResultsPage, resetExam }: ExamResult
       <p className="justify-center mb-6 flex gap-2">
         <button
           className={buttonStyle + ` bg-rose-950 hover:bg-rose-900`}
-          onClick={() => triggerResetExam()}
+          onClick={() => resetExam()}
         >
           Limpar respostas marcadas {isKeyboardCapable && <Kbd>Del</Kbd>}
         </button>
@@ -136,8 +130,8 @@ export default function ExamResult({ setShowResultsPage, resetExam }: ExamResult
               </h3>
               <div className="ml-6 my-1">
                 {alternatives.map((alt, idx) => {
-                  const wasChosen = checkedAlternatives?.includes(idx);
-                  const isCorrect = answers.includes(idx);
+                  const wasChosen = checkedAlternatives?.includes(alt.hash);
+                  const isCorrect = answers.includes(alt.hash);
                   const type = answers.length > 1 ? "checkbox" : "radio";
                   return (
                     <div
@@ -148,11 +142,14 @@ export default function ExamResult({ setShowResultsPage, resetExam }: ExamResult
                           : "bg-red-100 border-red-600"
                       }`}
                     >
-                      <label className={`flex items-center`}>
+                      <label
+                        className={`flex items-center`}
+                        id={`${question.id}-${alt.hash}`}
+                      >
                         <input type={type} readOnly checked={wasChosen} />
                         <span
                           className="ml-1 select-none"
-                          dangerouslySetInnerHTML={{ __html: alt }}
+                          dangerouslySetInnerHTML={{ __html: alt.label }}
                         ></span>
                       </label>
                     </div>

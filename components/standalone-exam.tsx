@@ -32,9 +32,12 @@ export default function StandaloneExam({
     useLiveQuery(() => db.settings.get(AppSetting.CurrentQuestion))?.value ?? 0;
   const setCurrentQuestion = (value: number) =>
     db.settings.update(AppSetting.CurrentQuestion, { value });
-  const setCheckedAlternatives = useCallback((id: string, answer: number[]) => {
-    db.questions.update(id, { checkedAlternatives: answer });
-  }, []);
+  const setCheckedAlternatives = useCallback(
+    (id: string, marked: (number | string)[]) => {
+      db.questions.update(id, { checkedAlternatives: marked });
+    },
+    []
+  );
   const [isKeyboardCapable, setIsKeyboardCapable] = useState(true);
   useSyntaxHighlighting();
   useKeyboardNavigationExam({
@@ -71,18 +74,22 @@ export default function StandaloneExam({
   );
 
   const storeAnswer = useCallback(
-    (e: ChangeEvent<HTMLInputElement>, question: StandaloneQuestion, index: number) => {
+    (
+      e: ChangeEvent<HTMLInputElement>,
+      question: StandaloneQuestion,
+      hash: number | string
+    ) => {
       let markedAlternatives = question.checkedAlternatives;
       if (question.answers.length > 1) {
         // checkbox
         if (e.currentTarget.checked) {
-          markedAlternatives.push(index);
+          markedAlternatives.push(hash);
         } else {
-          markedAlternatives = markedAlternatives.filter((a) => a != index);
+          markedAlternatives = markedAlternatives.filter((ma) => ma != hash);
         }
       } else {
         // radio
-        markedAlternatives = [index];
+        markedAlternatives = [hash];
       }
       setCheckedAlternatives(question.id, markedAlternatives);
       console.debug("Answered: ", markedAlternatives);
@@ -105,22 +112,22 @@ export default function StandaloneExam({
       )}
       <div className="relative pt-4">
         {question.alternatives.map((a, i) => (
-          <div key={i} className="flex mb-3">
+          <div key={a.hash} className="flex mb-3">
             <input
-              key={i}
+              key={a.hash}
               type={question.answers.length > 1 ? "checkbox" : "radio"}
               className="me-2 h-4 w-4 mt-[0.2rem] border-gray-300 focus:ring-2 focus:ring-blue-300"
               name={`q:${question.id}`}
-              data-index={i}
-              id={`q:${question.id}_a:${i}`}
-              onChange={(e) => storeAnswer(e, question, i)}
-              checked={question.checkedAlternatives?.includes(i)}
-              autoFocus={question.checkedAlternatives?.includes(i) || i === 0}
+              // data-index={a.hash}
+              id={`${question.id}-${a.hash}`}
+              onChange={(e) => storeAnswer(e, question, a.hash)}
+              checked={question.checkedAlternatives?.includes(a.hash)}
+              autoFocus={question.checkedAlternatives?.includes(a.hash) || i === 0}
             ></input>
             <label
               className="text font-medium text-gray-90 ml-2 flex gap-2"
-              htmlFor={`q:${question.id}_a:${i}`}
-              dangerouslySetInnerHTML={{ __html: a ?? "" }}
+              htmlFor={`${question.id}-${a.hash}`}
+              dangerouslySetInnerHTML={{ __html: a.label ?? "" }}
             ></label>
           </div>
         ))}
