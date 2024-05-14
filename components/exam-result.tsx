@@ -9,11 +9,10 @@ import { Dispatch, Fragment, SetStateAction, useCallback } from "react";
 import { Kbd } from "./kbd";
 import { AppSetting, db } from "@/db/db.model";
 import { useLiveQuery } from "dexie-react-hooks";
-import { StandaloneQuestion } from "@/classes/standalone-question";
 
 type ExamResultProps = {
   setShowResultsPage: Dispatch<SetStateAction<boolean>>;
-  resetExam: (questions: StandaloneQuestion[]) => void;
+  resetExam: () => void;
 };
 
 const buttonStyle = `px-3 py-2 mr-2 text-white rounded cursor-pointer  disabled:text-slate-300 disabled:bg-slate-500`;
@@ -52,15 +51,11 @@ export default function ExamResult({ setShowResultsPage, resetExam }: ExamResult
 
   const results = getResults();
 
-  const triggerResetExam = () => {
-    resetExam(questions);
-  };
-
   const isKeyboardCapable = useKeyboardNavigationResults({
     setShowAnsweredOnly,
     showAnsweredOnly,
     setShowResultsPage,
-    triggerResetExam,
+    resetExam,
   });
 
   return (
@@ -83,7 +78,7 @@ export default function ExamResult({ setShowResultsPage, resetExam }: ExamResult
       <p className="justify-center mb-6 flex gap-2">
         <button
           className={buttonStyle + ` bg-rose-950 hover:bg-rose-900`}
-          onClick={() => triggerResetExam()}
+          onClick={() => resetExam()}
         >
           Limpar respostas marcadas {isKeyboardCapable && <Kbd>Del</Kbd>}
         </button>
